@@ -1,0 +1,77 @@
+﻿<Window
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:TroiletGUI"
+        xmlns:System="clr-namespace:System;assembly=mscorlib" x:Class="TroiletGUI.MainWindow"
+        mc:Ignorable="d"
+        Title="Troilet Obfuscator GUI" Height="450" Width="800" Icon="/Icon2_512.jpeg" Loaded="Window_Loaded" ResizeMode="NoResize">
+    <Grid>
+        <TabControl Grid.ColumnSpan="3">
+            <TabItem Header="Home">
+                <Grid Background="#FFE5E5E5">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="92*"/>
+                        <ColumnDefinition Width="305*"/>
+                    </Grid.ColumnDefinitions>
+                    <Image HorizontalAlignment="Left" Height="120" Margin="153,10,0,0" VerticalAlignment="Top" Width="120" Source="/Icon2_512.jpeg" Grid.Column="1"/>
+                    <Label Content="Welcome to Troilet" HorizontalAlignment="Left" Margin="5,135,0,0" VerticalAlignment="Top" Width="416" Height="80" FontSize="48" Grid.Column="1"/>
+                    <Label Content="Troilet is the one you need" HorizontalAlignment="Left" Margin="182,203,0,0" VerticalAlignment="Top" Grid.ColumnSpan="2" Height="60" Width="430" FontSize="36"/>
+                    <Label Content="for your protection" HorizontalAlignment="Left" Margin="57,263,0,0" VerticalAlignment="Top" Height="60" Width="312" FontSize="36" Grid.Column="1"/>
+                    <Label x:Name="VersionLabel" Content="Version: v0.1.0" Margin="0,0,65,0" Height="26" VerticalAlignment="Top"/>
+                    <Label Content="Made by NoobSlayer5000#8208" Margin="419,0,0,0" Grid.Column="1" Height="26" VerticalAlignment="Top" HorizontalAlignment="Left" Width="181" RenderTransformOrigin="0.685,0.695"/>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Settings">
+                <Grid Background="#FFE5E5E5">
+                    <Label Content="Bytecode Apperance" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="136" Height="26"/>
+                    <ComboBox x:Name="BytecodeAppr" HorizontalAlignment="Left" Margin="10,41,0,0" VerticalAlignment="Top" Width="136" Height="22"/>
+                    <CheckBox x:Name="SerDebugCheckbox" Content="Serialize Debug" HorizontalAlignment="Left" Margin="10,76,0,0" VerticalAlignment="Top" Width="104"/>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Scripts">
+                <Grid Background="#FFE5E5E5">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="87*"/>
+                        <ColumnDefinition Width="310*"/>
+                    </Grid.ColumnDefinitions>
+                    <ListBox x:Name="RawScrs" d:ItemsSource="{d:SampleData ItemCount=5}" Margin="10,10,594,75" Grid.ColumnSpan="2"/>
+                    <ListBox x:Name="ScrsToObfuscate" d:ItemsSource="{d:SampleData ItemCount=5}" Margin="420,10,10,75" Grid.Column="1"/>
+                    <Button x:Name="ToggleScript" Content="Add to obfuscation" HorizontalAlignment="Left" Margin="11,336,0,0" VerticalAlignment="Top" Height="60" Width="254" Grid.ColumnSpan="2" Click="ToggleScript_Click"/>
+                    <Button Content="Refresh" HorizontalAlignment="Left" Margin="96,336,0,0" VerticalAlignment="Top" Height="60" Width="254" Grid.Column="1" Click="Refresh_Click"/>
+                    <Button Content="Obfuscate" HorizontalAlignment="Left" Margin="355,336,0,0" VerticalAlignment="Top" Height="60" Width="255" Grid.Column="1" Click="ObfuscateBtn_Click"/>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Plugins">
+                <Grid Background="#FFE5E5E5">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="215*"/>
+                        <ColumnDefinition Width="579*"/>
+                    </Grid.ColumnDefinitions>
+                    <ListBox x:Name="LoadedPlugins" d:ItemsSource="{d:SampleData ItemCount=5}" Margin="10,10,16,75"/>
+                    <ListBox x:Name="EnabledPlugins" d:ItemsSource="{d:SampleData ItemCount=5}" Margin="379,10,10,75" Grid.Column="1"/>
+                    <Button x:Name="PluginToggle" Content="Enable" Margin="10,336,10,10" Height="60" Width="774" Grid.ColumnSpan="2" Click="PluginToggle_Click"/>
+                    <Label HorizontalContentAlignment="Center" x:Name="PGname" Content="Plugin Name:" HorizontalAlignment="Left" Margin="72,78,0,0" VerticalAlignment="Top" Width="220" Grid.Column="1"/>
+                    <Label HorizontalContentAlignment="Center" x:Name="PGauthor" Content="Author:" HorizontalAlignment="Left" Margin="72,109,0,0" VerticalAlignment="Top" Width="220" Grid.Column="1"/>
+                    <Label HorizontalContentAlignment="Center" x:Name="PGversion" Content="Version:" HorizontalAlignment="Left" Margin="72,140,0,0" VerticalAlignment="Top" Width="220" Grid.Column="1"/>
+                    <TextBlock TextAlignment="Center" x:Name="PGdescription"  Grid.Column="1" HorizontalAlignment="Left" Margin="72,171,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="220" Height="70"/>
+
+                </Grid>
+            </TabItem>
+            <TabItem Header="Console">
+                <Grid Background="#FFE5E5E5">
+                    <RichTextBox x:Name="Output" IsReadOnlyCaretVisible="True" IsReadOnly="True" IsUndoEnabled="False">
+                        <FlowDocument>
+                            <Paragraph>
+                                <Run Text=""/>
+                            </Paragraph>
+                        </FlowDocument>
+                    </RichTextBox>
+
+                </Grid>
+            </TabItem>
+        </TabControl>
+
+    </Grid>
+</Window>
