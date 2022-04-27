@@ -54,7 +54,11 @@ namespace TroiletCore.Troilet_Bytecode
             writer.ProtectedWrite(count);
 
             for (int i = 0; i < count; i++)
+            {
                 new VInstruction(instrs[i]).GetInstruction(writer);
+                if (!VOpcodeGenerator.UsedOpcodes.Contains(instrs[i].Opcode))
+                    VOpcodeGenerator.UsedOpcodes.Add(instrs[i].Opcode);
+            }
         }
         private static void SerializeDebug(Function func)
         {

@@ -82,7 +82,6 @@ local function num2bin(n, places)
         binNum = binNum..'0'
     end
 
-
     return string.reverse(binNum)
 end
 local function bpcall(func, ...)
@@ -321,6 +320,9 @@ local function Wrap(Func, Globals, UpValues)
                 script = warning + script;
             }
 
+            #region PrintTable function
+        
+            /* made this a region cause VS is being dumb
 #if DEBUG
             script = @"local function PrintTbl(tbl, label, deepPrint)
 	assert(type(tbl) == 'table', 'First argument must be a table')
@@ -374,6 +376,9 @@ local function Wrap(Func, Globals, UpValues)
 end
 " + "\n" + script;     
 #endif
+            */
+
+            #endregion
 
             #region Add VOpcodes to the vm
 
@@ -400,7 +405,7 @@ end
         if not succ then
             local Instr = Instructions[PC]
             local A, B, C, Op = Instr[{settings.A_Idx}] or 'nil', Instr[{settings.B_Idx}] or 'nil', Instr[{settings.C_Idx}] or 'nil', Instr[{settings.OP_Idx}] or 'nil'
-            error('Got an error on instruction: ' .. PC .. '[\nA: ' .. A .. '\nB: ' .. B .. '\nC: ' .. C .. '\nOP: ' .. Op .. ' (to find the original opcode use VM.log in Temp)\n]')
+            error('Got an error on instruction: ' .. PC .. '[\nA: ' .. A .. '\nB: ' .. B .. '\nC: ' .. C .. '\nOP: ' .. Op .. ' (to find the original opcode use filename_VM.log in Temp)\n]', unpack(data))
         end
 
         return unpack(data)

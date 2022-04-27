@@ -16,9 +16,6 @@ namespace TroiletCore.VM
         protected VOpcode() { }
         public VOpcode(OpCodes opcode)
         {
-            if (!VOpcodeGenerator.UsedOpcodes.Contains(opcode))
-                VOpcodeGenerator.UsedOpcodes.Add(opcode);
-
             Original = opcode;
 
             switch (opcode)

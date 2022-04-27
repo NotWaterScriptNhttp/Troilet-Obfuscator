@@ -87,6 +87,7 @@ namespace TroiletCore
             try
             {
                 File.Delete(file);
+                TempFiles.Remove(file);
             } catch { }
         });
 #endif

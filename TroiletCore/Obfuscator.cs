@@ -49,6 +49,7 @@ namespace TroiletCore
 
         //Properties
         public PluginManager PluginManager { get; private set; }
+        public string Filename { get; private set; }
 
         //Variables
         internal static Obfuscator CurrentObfuscator;
@@ -80,17 +81,23 @@ namespace TroiletCore
 
         public void Setup()
         {
-            RegistryKey view = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry64);
-            RegistryKey jre = view.OpenSubKey("SOFTWARE\\JavaSoft\\Java Runtime Environment");
+            string[] args = Environment.GetCommandLineArgs();
 
-            if (jre == null)
-                jre = view.OpenSubKey("SOFTWARE\\JavaSoft\\JDK");
-
-            if (jre == null)
+            // we don't need to check any other arguments cause this is the only argument in the whole obfuscator
+            if (args.Length >= 1 && args[0] != "-nojar")
             {
-                MessageBox.Show("Please install java", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                throw new Exception("Java is not installed!");
-                Environment.Exit(0);
+                RegistryKey view = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry64);
+                RegistryKey jre = view.OpenSubKey("SOFTWARE\\JavaSoft\\Java Runtime Environment");
+
+                if (jre == null)
+                    jre = view.OpenSubKey("SOFTWARE\\JavaSoft\\JDK");
+
+                if (jre == null)
+                {
+                    MessageBox.Show("Please install java", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    throw new Exception("Java is not installed!");
+                    Environment.Exit(0);
+                }
             }
 
             if (!File.Exists("LuaLib.dll"))
@@ -141,9 +148,10 @@ namespace TroiletCore
 
         public Tuple<bool, string> Obfuscate(string file, ObfuscatorSettings settings = null, string output = "Output")
         {
-            CurrentObfuscator = this;
-
             string filename = Path.GetFileNameWithoutExtension(file);
+
+            CurrentObfuscator = this;
+            Filename = filename;
 
             // Doing stuff
             {

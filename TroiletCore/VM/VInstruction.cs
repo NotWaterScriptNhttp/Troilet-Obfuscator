@@ -75,8 +75,7 @@ namespace TroiletCore.VM
 
             #endregion
 
-#if DEBUG
-            File.AppendAllText("Temp/VM.log",
+            File.AppendAllText($"Temp/{Obfuscator.CurrentObfuscator.Filename}_VM.log",
 $@"{opcode.Original} -> ({opcode.opcode}): [
     OpMode: {mode} -> ({Convert.ToString(mode, 2)}),
     A: {A},
@@ -86,7 +85,6 @@ $@"{opcode.Original} -> ({opcode.opcode}): [
     sBx: {sBx}
 ]" + "\n"
             );
-#endif
         }
     }
 }
