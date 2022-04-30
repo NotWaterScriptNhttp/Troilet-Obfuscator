@@ -79,17 +79,13 @@ namespace TroiletCore
             return new string(Enumerable.Repeat(chars, random.Next(length, offset))
                 .Select(s => s[random.Next(s.Length)]).ToArray());
         }
-#if DEBUG
-        public static void DeleteTempfiles() { }
-#else
         public static void DeleteTempfiles() => TempFiles.ForEach(file =>
         {
             try
             {
                 File.Delete(file);
-                TempFiles.Remove(file);
-            } catch { }
+            }
+            catch { }
         });
-#endif
     }
 }

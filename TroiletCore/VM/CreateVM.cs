@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.IO;
+using System.Linq;
 using System.Text;
 
 using TroiletCore.RandomStuff;
@@ -37,7 +38,7 @@ namespace TroiletCore.VM
 
             Obfuscator.CurrentObfuscator.UpdateStatus(ObfuscatorStatus.CreatingValues);
 
-            string VarargName = CheckNumber("586LOL_FAKENAME"); // Helpers.RandomString(7, 15)
+            string VarargName = CheckNumber(Helpers.RandomString(7, 15));
 
             settings.A_Idx = (ushort)Helpers.random.Next(0, ushort.MaxValue);
             settings.B_Idx = (ushort)Helpers.random.Next(0, ushort.MaxValue);
@@ -322,7 +323,7 @@ local function Wrap(Func, Globals, UpValues)
 
             #region PrintTable function
         
-            /* made this a region cause VS is being dumb
+            // made this a region cause VS is being dumb
 #if DEBUG
             script = @"local function PrintTbl(tbl, label, deepPrint)
 	assert(type(tbl) == 'table', 'First argument must be a table')
@@ -374,19 +375,28 @@ local function Wrap(Func, Globals, UpValues)
 
     return table.concat(strTbl, '')
 end
-" + "\n" + script;     
+" + "\n" + script;
 #endif
-            */
+            //*/
 
             #endregion
 
             #region Add VOpcodes to the vm
+
+#if DEBUG
+            if (File.Exists($"Temp/ObfData_{Obfuscator.CurrentObfuscator.Filename}.dat"))
+                File.Delete($"Temp/ObfData_{Obfuscator.CurrentObfuscator.Filename}.dat");
+#endif
 
             Obfuscator.CurrentObfuscator.UpdateStatus(ObfuscatorStatus.CreatingVOpcodes);
 
             foreach (OpCodes op in VOpcodeGenerator.UsedOpcodes)
             {
                 VOpcode vop = VOpcodeGenerator.vOpcodes[op];
+
+#if DEBUG
+                File.AppendAllText($"Temp/ObfData_{Obfuscator.CurrentObfuscator.Filename}.dat", $"{vop.opcode}>{Instruction.OpcodeMap.GetOpcodeNumber(LuaLib.LuaVersion.LUA_VERSION_5_1, vop.Original)}\n");
+#endif
 
                 script += $"if Instruction[{settings.OP_Idx}] == {vop.opcode} then\n";
                 script += "    "+vop.GetOpCode(settings)+"\n";
