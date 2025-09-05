@@ -8,5 +8,8 @@ namespace TroiletCore.Plugin
         public abstract string Description { get; }
         public abstract string Author { get; }
         public abstract Version Version { get; }
+
+        public abstract void OnLoad();
+        public virtual void OnUnload() {}
     }
 }
