@@ -1,5 +1,7 @@
 ﻿using System;
+
 using TroiletCore;
+using TroiletCore.Plugin;
 
 namespace TroiletCLI
 {
@@ -8,6 +10,9 @@ namespace TroiletCLI
         public static void Main(string[] args)
         {
             new TroiletConfig();
+
+            PluginManager.Init();
+            
 
             Console.WriteLine();
             Console.ReadLine();

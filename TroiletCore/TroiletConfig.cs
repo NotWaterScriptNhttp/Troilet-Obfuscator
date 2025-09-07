@@ -1,10 +1,15 @@
 ﻿using System;
+using System.IO;
 
 namespace TroiletCore
 {
     public sealed class TroiletConfig
     {
         public string Root = Environment.CurrentDirectory;
+
+        public string PluginsDir => Path.Combine(Root, "plugins");
+        public string DependencyDir => Path.Combine(Root, "deps");
+
 
         private static TroiletConfig? _instance = null;
         public static TroiletConfig Instance
