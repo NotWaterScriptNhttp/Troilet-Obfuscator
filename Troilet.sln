@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TroiletCLI", "TroiletCLI\Tr
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TroiletProt-DotNet", "TroiletProt-DotNet\TroiletProt-DotNet.csproj", "{0054502E-ED21-4810-B3BC-34984FFDA091}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TroiletGUI", "TroiletGUI\TroiletGUI.csproj", "{AD9ED4E1-5533-47CF-8865-61940074E989}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{0054502E-ED21-4810-B3BC-34984FFDA091}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0054502E-ED21-4810-B3BC-34984FFDA091}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0054502E-ED21-4810-B3BC-34984FFDA091}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AD9ED4E1-5533-47CF-8865-61940074E989}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AD9ED4E1-5533-47CF-8865-61940074E989}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AD9ED4E1-5533-47CF-8865-61940074E989}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AD9ED4E1-5533-47CF-8865-61940074E989}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

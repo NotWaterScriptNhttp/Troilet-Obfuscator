@@ -12,7 +12,8 @@ namespace TroiletCLI
             new TroiletConfig();
 
             PluginManager.Init();
-            
+
+            PluginBase? p = PluginManager.GetObfuscator("dn");
 
             Console.WriteLine();
             Console.ReadLine();
