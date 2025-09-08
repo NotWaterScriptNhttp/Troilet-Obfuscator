@@ -22,6 +22,13 @@
             <Label x:Name="settingsbtn" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Content="Settings" HorizontalAlignment="Left" Margin="682,0,0,0" VerticalAlignment="Center" Width="78" Height="40" FontSize="18" Foreground="{Binding Foreground, ElementName=window}"/>
             <Label x:Name="wndclosebtn" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Content="X" HorizontalAlignment="Left" Margin="760,0,0,0" VerticalAlignment="Center" Width="40" Height="40" FontSize="18" Foreground="{Binding Foreground, ElementName=window}"/>
         </Grid>
-        <Grid Width="150" Margin="0,38,648,0" Background="#FF141414"/>
+        <Grid x:Name="sidebar" Width="150" Margin="0,38,648,0" Background="#FF141414">
+            <Button x:Name="sidefilebtn" Content="File" HorizontalAlignment="Left" VerticalAlignment="Top" Height="40" Width="151" Foreground="{Binding Foreground, ElementName=window}" BorderBrush="{Binding BorderBrush, ElementName=window}" Margin="-1,0,0,0" FontSize="16" Background="#00DDDDDD"/>
+            <Button x:Name="sidepluginsbtn" Content="Plugins" HorizontalAlignment="Center" VerticalAlignment="Top" Height="40" Width="151" Foreground="{Binding Foreground, ElementName=window}" BorderBrush="{Binding BorderBrush, ElementName=window}" FontSize="16" Margin="-1,39,0,0" Background="#00DDDDDD"/>
+
+        </Grid>
+        <Frame x:Name="pageview" Margin="150,38,0,0" HorizontalAlignment="Left" Width="650" NavigationUIVisibility="Hidden"/>
+
+
     </Grid>
 </Window>

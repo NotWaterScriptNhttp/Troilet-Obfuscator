@@ -8,14 +8,33 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+
+using TroiletCore;
+using TroiletCore.Plugin;
+
+using TroiletGUI.Pages;
 using TroiletGUI.Extensions;
 
 namespace TroiletGUI
 {
     public partial class MainWindow : Window
     {
+        private List<Button> _PageButtons = new List<Button>();
+
+        private void AddPage(Button btn, Page p)
+        {
+            if (_PageButtons.Count <= 0)
+                pageview.Content = p;
+
+            btn.Click += (s, e) => pageview.Content = p;
+            _PageButtons.Add(btn);
+        }
+
         public MainWindow()
         {
+            new TroiletConfig();
+            PluginManager.Init();
+
             InitializeComponent();
 
             settingsbtn.MakeButton((s, e) =>
@@ -26,6 +45,9 @@ namespace TroiletGUI
             {
                 Close();
             });
+
+            AddPage(sidefilebtn, new FilePage());
+            AddPage(sidepluginsbtn, new PluginPage());
         }
 
         private void window_Activated(object sender, EventArgs e)

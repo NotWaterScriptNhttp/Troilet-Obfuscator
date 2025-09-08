@@ -1,0 +1,18 @@
+﻿<Page
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:TroiletGUI.Pages"
+      xmlns:TroiletGUI="clr-namespace:TroiletGUI" x:Class="TroiletGUI.Pages.PluginPage"
+      mc:Ignorable="d" 
+      d:DesignHeight="760" d:DesignWidth="650"
+      Title="PluginPage">
+
+    <Grid>
+        <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="10,10,440,10">
+            <Grid x:Name="loadedPlugins"/>
+        </ScrollViewer>
+
+    </Grid>
+</Page>
