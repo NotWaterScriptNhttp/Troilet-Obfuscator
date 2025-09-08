@@ -10,9 +10,8 @@
       Title="PluginPage">
 
     <Grid>
-        <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="10,10,440,10">
-            <Grid x:Name="loadedPlugins"/>
+        <ScrollViewer VerticalScrollBarVisibility="Auto" MinWidth="315" MinHeight="740" Margin="10,10,325,10">
+            <StackPanel MinWidth="300" MinHeight="740" Orientation="Vertical" x:Name="loadedPlugins"/>
         </ScrollViewer>
-
     </Grid>
 </Page>

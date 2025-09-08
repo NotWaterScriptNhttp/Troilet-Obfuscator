@@ -6,9 +6,9 @@
              xmlns:local="clr-namespace:TroiletGUI.Controls"
              xmlns:TroiletGUI="clr-namespace:TroiletGUI" x:Class="TroiletGUI.Controls.PluginItem"
              mc:Ignorable="d" 
-             d:DesignHeight="50" d:DesignWidth="200">
+             d:DesignHeight="50" d:DesignWidth="340" BorderThickness="0,0,0,1" Background="#33000000" BorderBrush="White">
     <Grid>
-        <Label x:Name="pluginName" Content="Label" HorizontalAlignment="Center" VerticalAlignment="Top" Height="30" Width="200" FontWeight="Bold" FontSize="16" Foreground="White"/>
-        <Label x:Name="pluginDescription" Content="Label" HorizontalAlignment="Center" Margin="0,26,0,0" VerticalAlignment="Top" Width="200" Foreground="White"/>
+        <Label x:Name="pluginName" Content="Label" HorizontalAlignment="Left" VerticalAlignment="Top" Height="28" Width="338" FontWeight="Bold" FontSize="16" Foreground="White"/>
+        <Label x:Name="pluginDescription" Content="Label" HorizontalAlignment="Left" Margin="0,24,0,0" VerticalAlignment="Top" Width="338" Foreground="#FFC5C5C5"/>
     </Grid>
 </UserControl>

@@ -15,11 +15,10 @@ using System.Windows.Shapes;
 
 using TroiletCore.Plugin;
 
+using TroiletGUI.Controls;
+
 namespace TroiletGUI.Pages
 {
-    /// <summary>
-    /// Interakční logika pro PluginPage.xaml
-    /// </summary>
     public partial class PluginPage : Page
     {
         public PluginPage()
@@ -27,7 +26,7 @@ namespace TroiletGUI.Pages
             InitializeComponent();
 
             foreach (var p in PluginManager.Plugins)
-                loadedPlugins.Children.Add(new Plu)
+                loadedPlugins.Children.Add(new PluginItem(p.Name, p.Description));
         }
     }
 }
