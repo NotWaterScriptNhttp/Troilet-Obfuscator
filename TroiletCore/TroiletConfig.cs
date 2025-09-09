@@ -32,6 +32,11 @@ namespace TroiletCore
 
             if (root != null)
                 Root = root;
+
+            if (!Directory.Exists(PluginsDir))
+                Directory.CreateDirectory(PluginsDir);
+            if (!Directory.Exists(DependencyDir))
+                Directory.CreateDirectory(DependencyDir);
         }
     }
 }

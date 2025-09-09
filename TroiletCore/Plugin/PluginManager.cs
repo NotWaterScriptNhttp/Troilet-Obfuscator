@@ -39,8 +39,8 @@ namespace TroiletCore.Plugin
 
         private static PluginLoadContext? PCtx = null;
 
-        public static readonly List<PluginBase> Plugins = new List<PluginBase>();
-        public static PluginBase[] Obfuscators => Plugins.Where(x => x is IObfuscatorPlugin).ToArray();
+        public static readonly List<PluginBase<IPluginConfig>> Plugins = new List<PluginBase<IPluginConfig>>();
+        public static PluginBase<IPluginConfig>[] Obfuscators => Plugins.Where(x => x is IObfuscatorPlugin).ToArray();
 
         public static void Init()
         {
@@ -55,26 +55,15 @@ namespace TroiletCore.Plugin
 
             PCtx = new PluginLoadContext();
 
-            if (!Directory.Exists(TroiletConfig.Instance.PluginsDir))
-            {
-                Directory.CreateDirectory(TroiletConfig.Instance.PluginsDir);
-                return;
-            }
-            if (!Directory.Exists(TroiletConfig.Instance.DependencyDir))
-            {
-                Directory.CreateDirectory(TroiletConfig.Instance.DependencyDir);
-                return;
-            }
-
             foreach (string f in Directory.GetFiles(TroiletConfig.Instance.PluginsDir))
             {
                 Assembly pl = PCtx.LoadFromAssemblyPath(f);
                 foreach (Type t in pl.ExportedTypes)
                 {
-                    if (t.BaseType != typeof(PluginBase))
+                    if (t.BaseType != typeof(PluginBase<IPluginConfig>))
                         continue;
 
-                    PluginBase? pb = (PluginBase?)Activator.CreateInstance(t);
+                    PluginBase<IPluginConfig>? pb = (PluginBase<IPluginConfig>?)Activator.CreateInstance(t);
                     if (pb == null)
                         continue;
 
@@ -100,7 +89,7 @@ namespace TroiletCore.Plugin
             PCtx = null;
         }
 
-        public static PluginBase? GetObfuscator(string platform)
+        public static PluginBase<IPluginConfig>? GetObfuscator(string platform)
         {
             platform = platform.ToLower();
 
@@ -120,5 +109,6 @@ namespace TroiletCore.Plugin
 
             return null;
         }
+        public static PluginBase<T>? GetObfuscator<T>(string platform) where T : IPluginConfig => GetObfuscator(platform) as PluginBase<T>;
     }
 }
