@@ -13,7 +13,7 @@ namespace TroiletCLI
 
             PluginManager.Init();
 
-            PluginBase<IPluginConfig>? p = PluginManager.GetObfuscator("dn");
+            PluginBase? p = PluginManager.GetObfuscator("dn");
             if (p == null)
             {
                 Console.WriteLine("Failed to find dotnet protector!");

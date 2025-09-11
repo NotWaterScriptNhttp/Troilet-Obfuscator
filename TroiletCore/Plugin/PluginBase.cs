@@ -3,13 +3,13 @@ using System.Text;
 
 namespace TroiletCore.Plugin
 {
-    public abstract class PluginBase<T> where T : IPluginConfig
+    public abstract class PluginBase
     {
         public abstract string Name { get; }
         public abstract string Description { get; }
         public abstract string Author { get; }
         public abstract Version Version { get; }
-        public abstract T? Config { get; protected set; }
+        public abstract IPluginConfig? Config { get; protected set; }
 
         public abstract void OnLoad();
         public virtual void OnUnload() {}

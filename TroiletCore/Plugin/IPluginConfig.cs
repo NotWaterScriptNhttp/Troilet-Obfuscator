@@ -1,6 +1,6 @@
-﻿namespace TroiletCore.Plugin
+﻿using System;
+
+namespace TroiletCore.Plugin
 {
-    public interface IPluginConfig
-    {
-    }
+    public interface IPluginConfig { }
 }

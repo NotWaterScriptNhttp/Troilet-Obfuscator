@@ -6,5 +6,6 @@ namespace TroiletProt_DotNet
 {
     public class PluginConfig : IPluginConfig
     {
+
     }
 }

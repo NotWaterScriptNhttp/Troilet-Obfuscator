@@ -2,20 +2,29 @@
 
 using dnlib.DotNet;
 using dnlib.DotNet.Emit;
+
+using TroiletCore;
 using TroiletCore.Plugin;
 
 namespace TroiletProt_DotNet
 {
-    public class Plugin : PluginBase<PluginConfig>, IObfuscatorPlugin
+    public class Plugin : PluginBase, IObfuscatorPlugin
     {
         public override string Name => ".NET Protector";
         public override string Description => "Allows troilet to obfuscate .NET assemblies";
         public override string Author => "Troilet Team";
         public override Version Version => new Version(1, 0);
-        public override PluginConfig? Config { get; protected set; } = new PluginConfig();
+        public override IPluginConfig? Config { get; protected set; } = new PluginConfig();
 
         string IObfuscatorPlugin.Platform { get; set; } = ".NET";
+        string[] IObfuscatorPlugin.PlatformExt { get; set; } = { "exe", "dll" };
         string[]? IObfuscatorPlugin.ShortNames { get; set; } = { "dotnet", "dn" };
+
+        public Stream? GetPlatformIcon(string file)
+        {
+            //TODO: Verify that the file has a cor20 header
+            return Utils.GetResourceStream("ILIcon.png");
+        }
 
         public bool Obfuscate(string file, string output, string[]? deps = null)
         {

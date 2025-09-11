@@ -8,5 +8,11 @@
       d:DesignHeight="760" d:DesignWidth="650"
       Title="FilePage">
 
-    <Grid/>
+    <Grid>
+        <TextBox x:Name="selectedFile" HorizontalAlignment="Left" Margin="10,70,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="579" FontSize="14"/>
+        <Button x:Name="pickFileBtn" Content="..." HorizontalAlignment="Left" Margin="594,71,0,0" VerticalAlignment="Top" Width="46" Click="pickFileBtn_Click"/>
+        <Image x:Name="fileIcon" HorizontalAlignment="Left" Height="50" Margin="10,10,0,0" VerticalAlignment="Top" Width="50" Source="/Icon128.png"/>
+        <Label x:Name="fileNameLbl" HorizontalAlignment="Left" Margin="70,10,0,0" VerticalAlignment="Top" Foreground="White" Content="Filename"/>
+        <Label x:Name="fileSizeLbl" HorizontalAlignment="Left" Margin="70,39,0,0" VerticalAlignment="Top" Foreground="White" Content="Filesize: 0x0"/>
+    </Grid>
 </Page>
