@@ -48,6 +48,7 @@ namespace TroiletGUI
 
             AddPage(sidefilebtn, new FilePage());
             AddPage(sidepluginsbtn, new PluginPage());
+            AddPage(sidesettingsbtn, new SettingsPage());
         }
 
         private void window_Activated(object sender, EventArgs e)
