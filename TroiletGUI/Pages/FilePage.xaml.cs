@@ -40,9 +40,8 @@ namespace TroiletGUI.Pages
 
             return null;
         }
-        private ImageSource? GetIcon(string file)
+        private ImageSource? GetIcon(byte[] data, string? ext)
         {
-            string? ext = System.IO.Path.GetExtension(file);
             Stream? istream = null;
             if (ext == null)
                 goto UNKNOWN_ICON;
@@ -65,7 +64,7 @@ namespace TroiletGUI.Pages
 
                 if (!isValidExt)
                     continue;
-                if ((istream = op.GetPlatformIcon(file)) != null)
+                if ((istream = op.GetPlatformIcon(data)) != null)
                     break;
             }
 
@@ -91,10 +90,16 @@ namespace TroiletGUI.Pages
             if (nfile == null)
                 return;
 
+            byte[]? data = null;
+            if (System.IO.Path.Exists(nfile))
+                data = File.ReadAllBytes(nfile);
+
             SelectedFile = nfile;
-            selectedFile.Text = SelectedFile;
+            selectedFile.Text = SelectedFile.Length <= 76 ? SelectedFile : SelectedFile.Substring(0, 38) + "..." + SelectedFile.Substring(SelectedFile.Length - 38, 38);
             fileNameLbl.Content = System.IO.Path.GetFileName(SelectedFile);
-            fileIcon.Source = GetIcon(nfile);
+            if (data != null)
+                fileIcon.Source = GetIcon(data, System.IO.Path.GetExtension(nfile));
+            else fileIcon.Source = null;
         }
     }
 }

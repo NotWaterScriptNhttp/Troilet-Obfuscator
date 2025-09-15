@@ -20,9 +20,15 @@ namespace TroiletProt_DotNet
         string[] IObfuscatorPlugin.PlatformExt { get; set; } = { "exe", "dll" };
         string[]? IObfuscatorPlugin.ShortNames { get; set; } = { "dotnet", "dn" };
 
-        public Stream? GetPlatformIcon(string file)
+        public Stream? GetPlatformIcon(byte[] data)
         {
-            //TODO: Verify that the file has a cor20 header
+            try
+            {
+                AssemblyDef.Load(data);
+            } catch (BadImageFormatException _)
+            {
+                return null;
+            }
             return Utils.GetResourceStream("ILIcon.png");
         }
 

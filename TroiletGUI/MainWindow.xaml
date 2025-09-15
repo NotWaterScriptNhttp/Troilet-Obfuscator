@@ -14,15 +14,15 @@
         Title="Troilet" 
         Foreground="White"
         MinWidth="800" MinHeight="800" Icon="/Icon128.png" Activated="window_Activated" Deactivated="window_Deactivated">
-    <Grid>
-        <Grid x:Name="topbar" Margin="0,0,0,760" HorizontalAlignment="Center" Width="800" Height="40" Background="#FF2D2D2D" MouseDown="topbar_MouseDown">
-            <Image x:Name="wndicon" HorizontalAlignment="Right" Height="40" VerticalAlignment="Top" Width="40" Margin="0,0,760,0" Source="{Binding Icon, ElementName=window}"/>
-            <TextBlock x:Name="wndtitle" VerticalAlignment="Center" Text="{Binding Title, ElementName=window}" Margin="40,0,0,2" Width="150" Foreground="{Binding Foreground, ElementName=window}" HorizontalAlignment="Left" FontSize="16" FontWeight="Bold"/>
+    <Grid x:Name="grid">
+        <Grid x:Name="topbar" Margin="0,0,0,0" HorizontalAlignment="Center" Height="40" Background="#FF2D2D2D" MouseDown="topbar_MouseDown" VerticalAlignment="Top" Width="{Binding ActualWidth, ElementName=grid, Mode=OneWay}">
+            <Image x:Name="wndicon" HorizontalAlignment="Left" Height="40" VerticalAlignment="Top" Width="40" Margin="0,0,760,0" Source="{Binding Icon, ElementName=window}"/>
+            <TextBlock x:Name="wndtitle" VerticalAlignment="Center" Text="{Binding Title, ElementName=window}" Margin="40,0,608,0" Foreground="{Binding Foreground, ElementName=window}" FontSize="16" FontWeight="Bold"/>
 
-            <Label x:Name="settingsbtn" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Content="Settings" HorizontalAlignment="Left" Margin="682,0,0,0" VerticalAlignment="Center" Width="78" Height="40" FontSize="18" Foreground="{Binding Foreground, ElementName=window}"/>
-            <Label x:Name="wndclosebtn" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Content="X" HorizontalAlignment="Left" Margin="760,0,0,0" VerticalAlignment="Center" Width="40" Height="40" FontSize="18" Foreground="{Binding Foreground, ElementName=window}"/>
+            <Label x:Name="settingsbtn" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Content="Settings" Margin="0,0,40,0" VerticalAlignment="Center" Height="40" FontSize="18" Foreground="{Binding Foreground, ElementName=window}" HorizontalAlignment="Right" Width="78"/>
+            <Label x:Name="wndclosebtn" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Content="X" HorizontalAlignment="Right" Margin="760,0,0,0" VerticalAlignment="Center" Width="40" Height="40" FontSize="18" Foreground="{Binding Foreground, ElementName=window}"/>
         </Grid>
-        <Grid x:Name="sidebar" Width="150" Margin="0,38,648,0" Background="#FF141414">
+        <Grid x:Name="sidebar" Margin="0,38,0,0" Background="#FF141414" HorizontalAlignment="Left" Width="150">
             <Button x:Name="sidefilebtn" Content="File" HorizontalAlignment="Left" VerticalAlignment="Top" Height="40" Width="151" Foreground="{Binding Foreground, ElementName=window}" BorderBrush="{Binding BorderBrush, ElementName=window}" Margin="-1,0,0,0" FontSize="16" Background="#00DDDDDD"/>
             <Button x:Name="sidepluginsbtn" Content="Plugins" HorizontalAlignment="Center" VerticalAlignment="Top" Height="40" Width="151" Foreground="{Binding Foreground, ElementName=window}" BorderBrush="{Binding BorderBrush, ElementName=window}" FontSize="16" Margin="-1,39,0,0" Background="#00DDDDDD"/>
             <Button x:Name="sidesettingsbtn" Content="Settings" HorizontalAlignment="Center" VerticalAlignment="Top" Height="40" Width="151" Foreground="{Binding Foreground, ElementName=window}" BorderBrush="{Binding BorderBrush, ElementName=window}" FontSize="16" Margin="-1,78,0,0" Background="#00DDDDDD"/>
