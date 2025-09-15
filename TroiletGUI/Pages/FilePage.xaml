@@ -9,10 +9,10 @@
       Title="FilePage">
 
     <Grid>
-        <TextBox x:Name="selectedFile" Margin="10,70,61,669" TextWrapping="Wrap" FontSize="14"/>
+        <TextBox x:Name="selectedFile" Margin="10,70,61,0" TextWrapping="Wrap" FontSize="14" Height="21" VerticalAlignment="Top"/>
         <Button x:Name="pickFileBtn" Content="..." Margin="0,70,10,0" VerticalAlignment="Top" Click="pickFileBtn_Click" Height="{Binding Height, ElementName=selectedFile}" HorizontalAlignment="Right" Width="46"/>
         <Image x:Name="fileIcon" HorizontalAlignment="Left" Height="50" Margin="10,10,0,0" VerticalAlignment="Top" Width="50" Source="/Icon128.png"/>
         <Label x:Name="fileNameLbl" HorizontalAlignment="Left" Margin="70,10,0,0" VerticalAlignment="Top" Foreground="White" Content="Filename"/>
-        <Label x:Name="fileSizeLbl" HorizontalAlignment="Left" Margin="70,39,0,0" VerticalAlignment="Top" Foreground="White" Content="Filesize: 0x0"/>
+        <Label x:Name="fileSizeLbl" HorizontalAlignment="Left" Margin="70,34,0,0" VerticalAlignment="Top" Foreground="White" Content="Filesize: 0x0"/>
     </Grid>
 </Page>

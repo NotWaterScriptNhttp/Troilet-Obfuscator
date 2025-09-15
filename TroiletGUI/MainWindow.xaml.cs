@@ -60,6 +60,10 @@ namespace TroiletGUI
             BorderThickness = new Thickness(0, 0, 0, 0);
         }
 
-        private void topbar_MouseDown(object sender, MouseButtonEventArgs e) => DragMove();
+        private void topbar_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            WindowState = WindowState.Normal;
+            DragMove();
+        }
     }
 }
