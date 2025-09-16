@@ -65,7 +65,10 @@ namespace TroiletGUI.Pages
                 if (!isValidExt)
                     continue;
                 if ((istream = op.GetPlatformIcon(data)) != null)
+                {
+                    SettingsPage.Instance.SetObfuscator(p);
                     break;
+                }
             }
 
         UNKNOWN_ICON:

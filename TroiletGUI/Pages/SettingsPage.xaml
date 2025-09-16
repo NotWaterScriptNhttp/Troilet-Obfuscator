@@ -9,6 +9,7 @@
       Title="SettingsPage">
 
     <Grid>
-        
+        <ComboBox x:Name="ObfuscatorPicker" Margin="10,10,325,0" VerticalAlignment="Top" SelectionChanged="ObfuscatorPicker_SelectionChanged"/>
+
     </Grid>
 </Page>

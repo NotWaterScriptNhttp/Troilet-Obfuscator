@@ -13,6 +13,8 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
+using TroiletCore.Plugin;
+
 namespace TroiletGUI.Pages
 {
     /// <summary>
@@ -20,9 +22,30 @@ namespace TroiletGUI.Pages
     /// </summary>
     public partial class SettingsPage : Page
     {
+        public static SettingsPage Instance { get; private set; }
+        public static PluginBase? SelectedProtector { get; private set; }
+
+        public void SetObfuscator(PluginBase pb)
+        {
+            if (!(pb is IObfuscatorPlugin))
+                return;
+
+            SelectedProtector = pb;
+            ObfuscatorPicker.SelectedItem = pb;
+        }
+
         public SettingsPage()
         {
+            Instance = this;
+
             InitializeComponent();
+
+            ObfuscatorPicker.ItemsSource = PluginManager.Obfuscators;
+        }
+
+        private void ObfuscatorPicker_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            SelectedProtector = (PluginBase?)ObfuscatorPicker.SelectedItem;
         }
     }
 }

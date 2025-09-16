@@ -14,7 +14,7 @@ namespace TroiletCore.Plugin
         public abstract void OnLoad();
         public virtual void OnUnload() {}
 
-        public override string ToString()
+        public string ToString(bool simple)
         {
             StringBuilder sb = new StringBuilder();
             sb.Append(Name);
@@ -26,15 +26,19 @@ namespace TroiletCore.Plugin
                     for (int i = 0; i < op.ShortNames.Length; i++)
                         names += op.ShortNames[i] + (i + 1 == op.ShortNames.Length ? "" : ", ");
 
-                sb.AppendLine($" for {op.Platform} {(names == null ? "" : "(" + names + ")")}");
+                sb.Append($" for {op.Platform} {(names == null ? "" : "(" + names + ")")}");
             }
-            else sb.AppendLine();
 
+            if (simple)
+                return sb.ToString();
+
+            sb.AppendLine();
             sb.AppendLine("  " + Description);
             sb.AppendLine($"  - Author: {Author}");
             sb.Append($"  - Version: {Version}");
 
             return sb.ToString();
         }
+        public override string ToString() => ToString(true);
     }
 }
