@@ -25,13 +25,20 @@ namespace TroiletGUI.Pages
         public static SettingsPage Instance { get; private set; }
         public static PluginBase? SelectedProtector { get; private set; }
 
-        public void SetObfuscator(PluginBase pb)
+        public void SetObfuscator(PluginBase? pb)
         {
-            if (!(pb is IObfuscatorPlugin))
+            if (pb != null && !(pb is IObfuscatorPlugin op))
                 return;
 
             SelectedProtector = pb;
             ObfuscatorPicker.SelectedItem = pb;
+
+            settingItems.Children.Clear();
+            if (pb != null && pb.Config != null)
+                foreach (object s in pb.Config.Settings)
+                {
+                    
+                }
         }
 
         public SettingsPage()
@@ -43,9 +50,6 @@ namespace TroiletGUI.Pages
             ObfuscatorPicker.ItemsSource = PluginManager.Obfuscators;
         }
 
-        private void ObfuscatorPicker_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            SelectedProtector = (PluginBase?)ObfuscatorPicker.SelectedItem;
-        }
+        private void ObfuscatorPicker_SelectionChanged(object sender, SelectionChangedEventArgs e) => SetObfuscator((PluginBase?)ObfuscatorPicker.SelectedItem);
     }
 }

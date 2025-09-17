@@ -2,14 +2,13 @@
 
 namespace TroiletCore.Plugin
 {
-    public class PSettingLabel : IPluginSetting<string>
+    public class PSettingLabel : PluginSetting, ISettingValue<string>
     {
-        protected string _name = string.Empty;
         protected string _value = string.Empty;
 
-        string IPluginSetting<string>.Name => _name;
-        PluginSettingType IPluginSetting<string>.Type { get; set; } = PluginSettingType.Label;
-        string IPluginSetting<string>.Value
+        public override string Name { get; protected set; } = string.Empty;
+        public override PluginSettingType Type { get => throw new NotImplementedException(); protected set => throw new NotImplementedException(); }
+        public string Value
         {
             get => _value;
             set => _value = value;
@@ -17,7 +16,7 @@ namespace TroiletCore.Plugin
 
         public PSettingLabel(string name, string value)
         {
-            _name = name;
+            Name = name;
             _value = value;
         }
     }

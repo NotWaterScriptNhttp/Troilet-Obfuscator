@@ -11,10 +11,17 @@ namespace TroiletCore.Plugin
         Combo,
         Multicombo
     }
-    public interface IPluginSetting<T>
+
+    public interface ISettingValue<T>
     {
-        public string Name { get; }
-        public PluginSettingType Type { get; protected set; }
+        public delegate void OnValueChange(T val);
+
+        public event OnValueChange OnChange;
         public T Value { get; set; }
+    }
+    public abstract class PluginSetting
+    {
+        public abstract string Name { get; protected set; }
+        public abstract PluginSettingType Type { get; protected set; }
     }
 }
