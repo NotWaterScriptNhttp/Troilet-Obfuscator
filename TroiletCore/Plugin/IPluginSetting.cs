@@ -4,6 +4,7 @@ namespace TroiletCore.Plugin
 {
     public enum PluginSettingType : byte
     {
+        Label,
         Toggle,
         Text,
         Range,

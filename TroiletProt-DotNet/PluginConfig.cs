@@ -4,8 +4,9 @@ using TroiletCore.Plugin;
 
 namespace TroiletProt_DotNet
 {
-    public class PluginConfig : IPluginConfig
+    public class PluginConfig : PluginConfigBase
     {
-
+        public PSettingLabel 
+        public PSettingRange ProtectionLevel = new PSettingRange("Protection Level", new SRange(1, 5), 3);
     }
 }

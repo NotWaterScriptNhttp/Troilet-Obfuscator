@@ -9,7 +9,7 @@ namespace TroiletCore.Plugin
         public abstract string Description { get; }
         public abstract string Author { get; }
         public abstract Version Version { get; }
-        public abstract IPluginConfig? Config { get; protected set; }
+        public abstract PluginConfigBase? Config { get; protected set; }
 
         public abstract void OnLoad();
         public virtual void OnUnload() {}
