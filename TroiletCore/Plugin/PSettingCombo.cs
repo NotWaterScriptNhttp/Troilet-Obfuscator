@@ -2,25 +2,31 @@
 
 namespace TroiletCore.Plugin
 {
-    public class PSettingCombo<T> : IPluginSetting<T?>
+    public class PSettingCombo : PluginSetting, ISettingValue<object?>
     {
-        protected string _name = string.Empty;
-        protected T[] _options;
-        protected T? _value = default;
+        protected object[] _options;
+        protected object? _value = default;
 
-        string IPluginSetting<T?>.Name => _name;
-        PluginSettingType IPluginSetting<T?>.Type { get; set; } = PluginSettingType.Combo;
-        T? IPluginSetting<T?>.Value
+        public event ISettingValue<object?>.OnValueChange? OnChange;
+
+        public override string Name { get; protected set; }
+        public override PluginSettingType Type { get; protected set; } = PluginSettingType.Combo;
+        public object? Value
         {
-            get => _value; 
-            set => _value = value;
+            get => _value;
+            set
+            {
+                _value = value;
+                if (OnChange != null)
+                    OnChange.Invoke(value);
+            }
         }
 
-        public PSettingCombo(string name, T[] options, T? value = default)
+        public PSettingCombo(string name, object[] options, object? value = default)
         {
-            _name = name;
+            Name = name;
             _options = options;
-            _value = value;
+            Value = value;
         }
     }
 }

@@ -16,7 +16,7 @@ namespace TroiletCore.Plugin
     {
         public delegate void OnValueChange(T val);
 
-        public event OnValueChange OnChange;
+        public event OnValueChange? OnChange;
         public T Value { get; set; }
     }
     public abstract class PluginSetting

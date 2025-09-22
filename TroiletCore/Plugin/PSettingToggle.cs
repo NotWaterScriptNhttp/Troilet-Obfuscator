@@ -2,23 +2,29 @@
 
 namespace TroiletCore.Plugin
 {
-    public class PSettingToggle : IPluginSetting<bool>
+    public class PSettingToggle : PluginSetting, ISettingValue<bool>
     {
-        protected string _name = string.Empty;
         protected bool _enabled = false;
 
-        string IPluginSetting<bool>.Name => _name;
-        PluginSettingType IPluginSetting<bool>.Type { get; set; } = PluginSettingType.Toggle;
-        bool IPluginSetting<bool>.Value
+        public event ISettingValue<bool>.OnValueChange? OnChange;
+
+        public override string Name { get; protected set; } = string.Empty;
+        public override PluginSettingType Type { get; protected set; } = PluginSettingType.Toggle;
+        public bool Value
         {
-            get => _enabled; 
-            set => _enabled = value;
+            get => _enabled;
+            set
+            {
+                _enabled = value;
+                if (OnChange != null)
+                    OnChange.Invoke(value);
+            }
         }
 
         public PSettingToggle(string name, bool defValue = false)
         {
-            _name = name;
-            _enabled = defValue;
+            Name = name;
+            Value = defValue;
         }
     }
 }

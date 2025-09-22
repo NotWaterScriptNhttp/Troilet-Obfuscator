@@ -6,25 +6,31 @@ using System.Threading.Tasks;
 
 namespace TroiletCore.Plugin
 {
-    public class PSettingMultiCombo<T> : IPluginSetting<T[]?>
+    public class PSettingMultiCombo : PluginSetting, ISettingValue<object[]?>
     {
-        protected string _name = string.Empty;
-        protected T[] _options;
-        protected T[]? _value = null;
+        protected object[] _options;
+        protected object[]? _value = null;
 
-        string IPluginSetting<T[]?>.Name => _name;
-        PluginSettingType IPluginSetting<T[]?>.Type { get; set; } = PluginSettingType.Multicombo;
-        T[]? IPluginSetting<T[]?>.Value
+        public event ISettingValue<object[]?>.OnValueChange? OnChange;
+
+        public override string Name { get; protected set; }
+        public override PluginSettingType Type { get; protected set; } = PluginSettingType.Multicombo;
+        public object[]? Value
         {
             get => _value;
-            set => _value = value;
+            set
+            {
+                _value = value;
+                if (OnChange != null)
+                    OnChange.Invoke(value);
+            }
         }
 
-        public PSettingMultiCombo(string name, T[] options, T[]? values)
+        public PSettingMultiCombo(string name, object[] options, object[]? values)
         {
-            _name = name;
+            Name = name;
             _options = options;
-            _value = values;
+            Value = values;
         }
     }
 }
