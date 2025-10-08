@@ -37,7 +37,19 @@ namespace TroiletGUI.Pages
             if (pb != null && pb.Config != null)
                 foreach (object s in pb.Config.Settings)
                 {
-                    
+                    if (s is not PluginSetting ps)
+                        return;
+
+                    switch (ps.Type)
+                    {
+                        case PluginSettingType.Label:
+                            {
+                                Label l = new Label();
+
+                                settingItems.Children.Add(l);
+                                break;
+                            }
+                    }
                 }
         }
 
