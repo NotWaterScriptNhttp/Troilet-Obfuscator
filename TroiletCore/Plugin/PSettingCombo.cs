@@ -4,13 +4,14 @@ namespace TroiletCore.Plugin
 {
     public class PSettingCombo : PluginSetting, ISettingValue<object?>
     {
-        protected object[] _options;
         protected object? _value = default;
 
         public event ISettingValue<object?>.OnValueChange? OnChange;
 
         public override string Name { get; protected set; }
         public override PluginSettingType Type { get; protected set; } = PluginSettingType.Combo;
+        
+        public object[] Options { get; private set; }
         public object? Value
         {
             get => _value;
@@ -25,7 +26,7 @@ namespace TroiletCore.Plugin
         public PSettingCombo(string name, object[] options, object? value = default)
         {
             Name = name;
-            _options = options;
+            Options = options;
             Value = value;
         }
     }

@@ -22,6 +22,8 @@ namespace TroiletGUI.Pages
     /// </summary>
     public partial class SettingsPage : Page
     {
+        private static readonly SolidColorBrush WHITE = new SolidColorBrush(Color.FromRgb(255, 255, 255));
+
         public static SettingsPage Instance { get; private set; }
         public static PluginBase? SelectedProtector { get; private set; }
 
@@ -40,13 +42,85 @@ namespace TroiletGUI.Pages
                     if (s is not PluginSetting ps)
                         return;
 
+                    string name = ps.Name.ToLower().Replace(" ", "_");
                     switch (ps.Type)
                     {
                         case PluginSettingType.Label:
                             {
+                                PSettingLabel? ls = ps as PSettingLabel;
+                                if (ls == null)
+                                    break;
+
                                 Label l = new Label();
+                                l.Name = name;
+                                l.Content = ls.Value;
+                                l.FontSize = 18.0d;
+                                l.FontWeight = FontWeight.FromOpenTypeWeight(700);
+                                l.Foreground = WHITE;
 
                                 settingItems.Children.Add(l);
+                                break;
+                            }
+                        case PluginSettingType.Toggle:
+                            {
+                                PSettingToggle? ts = ps as PSettingToggle;
+                                if (ts == null)
+                                    break;
+
+                                CheckBox cb = new CheckBox();
+                                cb.Name = name;
+                                cb.Content = ps.Name;
+                                cb.IsChecked = ts.Value;
+                                cb.Foreground = WHITE;
+                                cb.Checked += (s, e) => ts.Value = true;
+                                cb.Unchecked += (s, e) => ts.Value = false;
+
+                                settingItems.Children.Add(cb);
+                                break;
+                            }
+                        case PluginSettingType.Text:
+                            {
+                                PSettingText? ts = ps as PSettingText;
+                                if (ts == null)
+                                    break;
+
+                                TextBox tb = new TextBox();
+                                tb.Name = name;
+                                tb.Text = ts.Value;
+                                tb.TextChanged += (s, e) => ts.Value = tb.Text;
+
+                                settingItems.Children.Add(tb);
+                                break;
+                            }
+                        case PluginSettingType.Range:
+                            {
+                                PSettingRange? rs = ps as PSettingRange;
+                                if (rs == null)
+                                    continue;
+
+                                Slider sl = new Slider();
+                                sl.Name = name;
+                                sl.Value = rs.Value;
+                                sl.Minimum = rs.Range.Start;
+                                sl.Maximum = rs.Range.End;
+                                sl.TickFrequency = rs.Step;
+                                sl.ValueChanged += (s, e) => rs.Value = sl.Value;
+
+                                settingItems.Children.Add(sl);
+                                break;
+                            }
+                        case PluginSettingType.Combo:
+                            {
+                                PSettingCombo? cs = ps as PSettingCombo;
+                                if (cs == null)
+                                    break;
+
+                                ComboBox cb = new ComboBox();
+                                cb.Name = name;
+                                cb.ItemsSource = cs.Options;
+                                cb.SelectedItem = cs.Value;
+
+                                settingItems.Children.Add(cb);
                                 break;
                             }
                     }
