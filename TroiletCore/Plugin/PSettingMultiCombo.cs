@@ -28,6 +28,8 @@ namespace TroiletCore.Plugin
 
         public PSettingMultiCombo(string name, object[] options, object[]? values)
         {
+            throw new NotImplementedException();
+
             Name = name;
             _options = options;
             Value = values;

@@ -17,9 +17,6 @@ using TroiletCore.Plugin;
 
 namespace TroiletGUI.Pages
 {
-    /// <summary>
-    /// Interakční logika pro SettingsPage.xaml
-    /// </summary>
     public partial class SettingsPage : Page
     {
         private static readonly SolidColorBrush WHITE = new SolidColorBrush(Color.FromRgb(255, 255, 255));
@@ -119,6 +116,7 @@ namespace TroiletGUI.Pages
                                 cb.Name = name;
                                 cb.ItemsSource = cs.Options;
                                 cb.SelectedItem = cs.Value;
+                                cb.SelectionChanged += (s, e) => cs.Value = cb.SelectedItem;
 
                                 settingItems.Children.Add(cb);
                                 break;
