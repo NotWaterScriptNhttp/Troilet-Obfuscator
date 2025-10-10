@@ -7,9 +7,9 @@
              mc:Ignorable="d" 
              d:DesignHeight="40" d:DesignWidth="400">
     <Grid>
-        <Label x:Name="_title" Content="Label" Margin="0,-5,362,19"/>
+        <Label x:Name="_title" Content="Label" Margin="0,-5,200,19"/>
         <Slider x:Name="_range" Margin="5,18,5,4"/>
-        <Label x:Name="_value" HorizontalContentAlignment="Right" Content="Label" Margin="306,-5,5,22" RenderTransformOrigin="0.464,1.038"/>
+        <Label x:Name="_value" HorizontalContentAlignment="Right" Content="Label" Margin="200,-5,5,19" RenderTransformOrigin="0.464,1.038"/>
 
     </Grid>
 </UserControl>

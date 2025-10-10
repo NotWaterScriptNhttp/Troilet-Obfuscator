@@ -14,6 +14,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 
 using TroiletCore.Plugin;
+using TroiletGUI.Controls;
 
 namespace TroiletGUI.Pages
 {
@@ -95,12 +96,14 @@ namespace TroiletGUI.Pages
                                 if (rs == null)
                                     continue;
 
-                                Slider sl = new Slider();
+                                RangeSetting sl = new RangeSetting();
                                 sl.Name = name;
+                                sl.Text = rs.Name;
                                 sl.Value = rs.Value;
-                                sl.Minimum = rs.Range.Start;
-                                sl.Maximum = rs.Range.End;
-                                sl.TickFrequency = rs.Step;
+                                sl.Min = rs.Range.Start;
+                                sl.Max = rs.Range.End;
+                                sl.Step = rs.Step;
+                                sl.Foreground = WHITE;
                                 sl.ValueChanged += (s, e) => rs.Value = sl.Value;
 
                                 settingItems.Children.Add(sl);

@@ -1,0 +1,3 @@
+﻿Settings page:
+    - left should be tabs with some settings
+    - on right there should be the settings that can be controlled by the user

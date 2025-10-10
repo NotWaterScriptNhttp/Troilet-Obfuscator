@@ -20,6 +20,13 @@ namespace TroiletGUI.Controls
     /// </summary>
     public partial class RangeSetting : UserControl
     {
+        public delegate void OnChange(object sender, RoutedPropertyChangedEventArgs<double> e);
+
+        public object Text
+        {
+            get => _title.Content;
+            set => _title.Content = value;
+        }
         public double Min
         {
             get => _range.Minimum;
@@ -40,11 +47,34 @@ namespace TroiletGUI.Controls
             }
         }
 
+        public double Step
+        {
+            get => _range.TickFrequency;
+            set => _range.TickFrequency = value;
+        }
+
+        public new Brush Foreground
+        {
+            set
+            {
+                _title.Foreground = value;
+                _value.Foreground = value;
+            }
+        }
+
+        public event OnChange? ValueChanged;
+
         public RangeSetting()
         {
             InitializeComponent();
 
-            _range.ValueChanged += (s, e) => _value.Content = _range.Value.ToString();
+            _range.IsSnapToTickEnabled = true;
+            _range.ValueChanged += (s, e) =>
+            {
+                _value.Content = _range.Value.ToString();
+                if (ValueChanged != null)
+                    ValueChanged.Invoke(s, e);
+            };
         }
     }
 }

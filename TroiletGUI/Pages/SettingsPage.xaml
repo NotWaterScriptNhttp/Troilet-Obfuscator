@@ -9,10 +9,13 @@
       Title="SettingsPage">
 
     <Grid>
-        <ComboBox x:Name="ObfuscatorPicker" Margin="10,10,325,0" VerticalAlignment="Top" SelectionChanged="ObfuscatorPicker_SelectionChanged"/>
-        <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="10,37,10,10">
-            <StackPanel x:Name="settingItems" Orientation="Vertical" >
+        <ComboBox x:Name="ObfuscatorPicker" Margin="10,10,327,0" VerticalAlignment="Top" SelectionChanged="ObfuscatorPicker_SelectionChanged"/>
+        <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="10,37,430,10">
+            <StackPanel x:Name="settingTabs" Orientation="Vertical" >
             </StackPanel>
+        </ScrollViewer>
+        <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="235,37,10,10">
+            <StackPanel x:Name="settingItems" Orientation="Vertical" />
         </ScrollViewer>
     </Grid>
 </Page>
