@@ -11,7 +11,12 @@ namespace TroiletCore.Plugin
 
         public override object? ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer)
         {
-            throw new NotImplementedException();
+            if (reader.TokenType == JsonToken.Null)
+                return existingValue;
+            if (existingValue == null)
+                return null;
+
+            return serializer.Deserialize(reader);
         }
 
         public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
@@ -46,7 +51,6 @@ namespace TroiletCore.Plugin
     [JsonObject(MemberSerialization = MemberSerialization.OptIn)]
     public abstract class PluginSetting
     {
-        [JsonProperty]
         public abstract string Name { get; protected set; }
         public abstract string Label { get; protected set; }
         public abstract PluginSettingType Type { get; protected set; }

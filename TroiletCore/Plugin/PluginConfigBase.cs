@@ -13,7 +13,22 @@ namespace TroiletCore.Plugin
         {
             public override Dictionary<string, PSettingSection>? ReadJson(JsonReader reader, Type objectType, Dictionary<string, PSettingSection>? existingValue, bool hasExistingValue, JsonSerializer serializer)
             {
-                throw new NotImplementedException();
+                if (reader.TokenType == JsonToken.Null)
+                    return existingValue;
+                if (existingValue == null) 
+                    return null;
+
+                JObject o = (JObject)JToken.Load(reader);
+                foreach (KeyValuePair<string, PSettingSection> kvp in existingValue)
+                {
+                    JToken? t = o.GetValue(kvp.Key);
+                    if (t == null)
+                        continue;
+
+                    serializer.Populate(t.CreateReader(), kvp.Value);
+                }
+
+                return existingValue;
             }
 
             public override void WriteJson(JsonWriter writer, Dictionary<string, PSettingSection>? value, JsonSerializer serializer)
@@ -113,7 +128,10 @@ namespace TroiletCore.Plugin
         public string SaveAsJSON() => JsonConvert.SerializeObject(this);
         public void LoadAsJSON(string json)
         {
-            //var cfg = JsonConvert.DeserializeObject<PluginConfigBase>(json);
+            JsonConvert.PopulateObject(json, this, new JsonSerializerSettings()
+            {
+                ObjectCreationHandling = ObjectCreationHandling.Reuse
+            });
         }
     }
 }

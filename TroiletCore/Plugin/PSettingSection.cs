@@ -13,7 +13,22 @@ namespace TroiletCore.Plugin
         {
             public override Dictionary<string, PluginSetting>? ReadJson(JsonReader reader, Type objectType, Dictionary<string, PluginSetting>? existingValue, bool hasExistingValue, JsonSerializer serializer)
             {
-                throw new NotImplementedException();
+                if (reader.TokenType == JsonToken.Null)
+                    return existingValue;
+                if (existingValue == null)
+                    return null;
+
+                JObject o = (JObject)JToken.Load(reader);
+                foreach (KeyValuePair<string, PluginSetting> kvp in existingValue)
+                {
+                    JToken? t = o.GetValue(kvp.Key);
+                    if (t == null)
+                        continue;
+
+                    serializer.Populate(t.CreateReader(), kvp.Value);
+                }
+
+                return existingValue;
             }
 
             public override void WriteJson(JsonWriter writer, Dictionary<string, PluginSetting>? value, JsonSerializer serializer)
@@ -24,16 +39,16 @@ namespace TroiletCore.Plugin
                     return;
                 }
 
-                JArray a = new JArray();
+                JObject o = new JObject();
                 foreach (KeyValuePair<string, PluginSetting> kvp in value)
                 {
                     if (kvp.Value.Type == PluginSettingType.Label)
                         continue;
 
-                    a.Add(JToken.FromObject(kvp.Value, serializer));
+                    o.Add(kvp.Key, JToken.FromObject(kvp.Value, serializer));
                 }
 
-                a.WriteTo(writer);
+                o.WriteTo(writer);
             }
         }
 

@@ -40,6 +40,7 @@ namespace TroiletGUI.Pages
 
             string json = pb.Config.SaveAsJSON();
             Console.WriteLine(json);
+            pb.Config.LoadAsJSON(json);
             /*if (pb != null && pb.Config != null)
                 foreach (object s in pb.Config.Settings)
                 {
