@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -34,7 +35,8 @@ namespace TroiletGUI.Pages
             ObfuscatorPicker.SelectedItem = pb;
 
             settingItems.Children.Clear();
-            if (pb != null && pb.Config != null)
+            Console.WriteLine(JsonConvert.SerializeObject(pb.Config));
+            /*if (pb != null && pb.Config != null)
                 foreach (object s in pb.Config.Settings)
                 {
                     if (s is not PluginSetting ps)
@@ -125,7 +127,7 @@ namespace TroiletGUI.Pages
                                 break;
                             }
                     }
-                }
+                }*/
         }
 
         public SettingsPage()

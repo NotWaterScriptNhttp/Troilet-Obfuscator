@@ -9,6 +9,7 @@ namespace TroiletCore.Plugin
         public event ISettingValue<bool>.OnValueChange? OnChange;
 
         public override string Name { get; protected set; } = string.Empty;
+        public override string Label { get; protected set; } = string.Empty;
         public override PluginSettingType Type { get; protected set; } = PluginSettingType.Toggle;
         public bool Value
         {
@@ -21,9 +22,10 @@ namespace TroiletCore.Plugin
             }
         }
 
-        public PSettingToggle(string name, bool defValue = false)
+        public PSettingToggle(string name, string lbl, bool defValue = false)
         {
             Name = name;
+            Label = lbl;
             Value = defValue;
         }
     }

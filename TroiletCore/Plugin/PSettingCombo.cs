@@ -8,7 +8,8 @@ namespace TroiletCore.Plugin
 
         public event ISettingValue<object?>.OnValueChange? OnChange;
 
-        public override string Name { get; protected set; }
+        public override string Name { get; protected set; } = string.Empty;
+        public override string Label { get; protected set; } = string.Empty;
         public override PluginSettingType Type { get; protected set; } = PluginSettingType.Combo;
         
         public object[] Options { get; private set; }
@@ -23,9 +24,10 @@ namespace TroiletCore.Plugin
             }
         }
 
-        public PSettingCombo(string name, object[] options, object? value = default)
+        public PSettingCombo(string name, string lbl, object[] options, object? value = default)
         {
             Name = name;
+            Label = lbl;
             Options = options;
             Value = value;
         }

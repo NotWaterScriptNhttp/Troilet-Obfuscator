@@ -1,18 +1,110 @@
 ﻿using System;
 using System.Collections.Generic;
 
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+
 namespace TroiletCore.Plugin
 {
+    internal class PluginConfigConverter : JsonConverter<PluginConfigBase>
+    {
+        public override PluginConfigBase? ReadJson(JsonReader reader, Type objectType, PluginConfigBase? existingValue, bool hasExistingValue, JsonSerializer serializer)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void WriteJson(JsonWriter writer, PluginConfigBase? value, JsonSerializer serializer)
+        {
+            if (value == null)
+            {
+                writer.WriteNull();
+                return;
+            }
+
+            JObject sections = new JObject();
+            foreach (KeyValuePair<string, PSettingSection> kvp in value._Sections)
+                sections.Add(new JProperty(kvp.Key, JToken.FromObject(kvp.Value)));
+            sections.WriteTo(writer);
+        }
+    }
+
+    [JsonConverter(typeof(PluginConfigConverter))]
     public abstract class PluginConfigBase
     {
-        protected List<object> _Settings = new List<object>();
-        public object[] Settings => _Settings.ToArray();
+        internal Dictionary<string, PSettingSection> _Sections = new Dictionary<string, PSettingSection>();
+        public PSettingSection[] Sections => _Sections.Values.ToArray();
 
-        protected void AddLabel(string name, string txt) => _Settings.Add(new PSettingLabel(name, txt));
-        protected void AddToggle(string name, bool val = false) => _Settings.Add(new PSettingToggle(name, val));
-        protected void AddTextInput(string name, string val = "") => _Settings.Add(new PSettingText(name, val));
-        protected void AddRange(string name, double val, double min, double max) => _Settings.Add(new PSettingRange(name, new SRange(min, max), val));
-        protected void AddCombo(string name, object[] options, object? val = null) => _Settings.Add(new PSettingCombo(name, options, val));
-        protected void AddComboMulti(string name, object[] options, object[]? vals = null) => _Settings.Add(new PSettingMultiCombo(name, options, vals));
+        protected PSettingSection AddSection(string name)
+        {
+            if (_Sections.ContainsKey(name))
+                throw new ApplicationException("This section already exists in the current config!");
+
+            return _Sections[name] = new PSettingSection(name);
+        }
+
+        public string GetValue(string section, string setting, string defValue = "")
+        {
+            if (!_Sections.TryGetValue(section, out var sec))
+                throw new ApplicationException($"Section '{section}' does not exist!");
+
+            if (!sec.Settings.TryGetValue(setting, out var set))
+                return defValue;
+
+            switch (set.Type)
+            {
+                case PluginSettingType.Label:
+                    return (set as ISettingValue<string>).Value;
+                case PluginSettingType.Toggle:
+                    return (set as ISettingValue<bool>).Value.ToString();
+                case PluginSettingType.Text:
+                    return (set as ISettingValue<string>).Value;
+                case PluginSettingType.Range:
+                    return (set as ISettingValue<double>).Value.ToString();
+                case PluginSettingType.Combo:
+                    return (set as ISettingValue<object?>).Value?.ToString();
+            }
+
+            return defValue;
+        }
+        public double GetValue(string section, string setting, double defValue = 0)
+        {
+            if (!_Sections.TryGetValue(section, out var sec))
+                throw new ApplicationException($"Section '{section}' does not exist!");
+
+            if (!sec.Settings.TryGetValue(setting, out var set))
+                return defValue;
+
+            switch (set.Type)
+            {
+                case PluginSettingType.Range:
+                    return (set as ISettingValue<double>).Value;
+            }
+
+            return defValue;
+        }
+        public object? GetValue(string section, string setting, object? defValue = null)
+        {
+            if (!_Sections.TryGetValue(section, out var sec))
+                throw new ApplicationException($"Section '{section}' does not exist!");
+
+            if (!sec.Settings.TryGetValue(setting, out var set))
+                return defValue;
+
+            switch (set.Type)
+            {
+                case PluginSettingType.Label:
+                    return (set as ISettingValue<string>).Value;
+                case PluginSettingType.Toggle:
+                    return (set as ISettingValue<bool>).Value;
+                case PluginSettingType.Text:
+                    return (set as ISettingValue<string>).Value;
+                case PluginSettingType.Range:
+                    return (set as ISettingValue<double>).Value;
+                case PluginSettingType.Combo:
+                    return (set as ISettingValue<object?>).Value;
+            }
+
+            return defValue;
+        }
     }
 }

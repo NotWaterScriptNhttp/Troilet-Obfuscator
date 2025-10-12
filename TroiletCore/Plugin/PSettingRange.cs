@@ -19,7 +19,8 @@ namespace TroiletCore.Plugin
 
         public event ISettingValue<double>.OnValueChange? OnChange;
 
-        public override string Name { get; protected set; }
+        public override string Name { get; protected set; } = string.Empty;
+        public override string Label { get; protected set; } = string.Empty;
         public override PluginSettingType Type { get; protected set; } = PluginSettingType.Range;
         public double Value
         {
@@ -35,9 +36,10 @@ namespace TroiletCore.Plugin
         public SRange Range { get; private set; } = default;
         public double Step { get; private set; } = 1;
 
-        public PSettingRange(string name, SRange range = default, double value = 0, double step = 1)
+        public PSettingRange(string name, string lbl, SRange range = default, double value = 0, double step = 1)
         {
             Name = name;
+            Label = lbl;
             Range = range;
             Value = value;
             Step = step;

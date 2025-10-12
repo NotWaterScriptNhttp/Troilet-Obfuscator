@@ -6,6 +6,8 @@ namespace TroiletProt_DotNet
 {
     public class PluginConfig : PluginConfigBase
     {
+        public static PluginConfig? Instance { get; private set; } = null;
+
         public PluginConfig()
         {
             string[] test = new string[]
@@ -16,12 +18,20 @@ namespace TroiletProt_DotNet
                 "Skoc z okna"
             };
 
-            AddLabel("label1", "Test Label");
+            /*AddLabel("label1", "Test Label");
             AddRange("Protection Level", 1, 0, 5);
             AddToggle("Enable Packing", true);
             AddTextInput("Encryption Key", "Test_key5583$$$");
-            AddCombo("Dropdown1", test, test[1]);
-            AddComboMulti("MultiDropdown1", test);
+            AddCombo("Dropdown1", test, test[1]);*/
+
+            AddSection("General")
+                .AddLabel("label1", "Test label")
+                .AddSlider("protection_level", "Protection Level", 0, 5, 1)
+                .AddToggle("enable_packing", "Enabled Packing", true)
+                .AddTextInput("enc_key", "Encryption key", "KeyTestValue_$$$553==")
+                .AddCombo("dropdown1", "Test dropdown", test, test[1]);
+
+            Instance = this;
         }
     }
 }
