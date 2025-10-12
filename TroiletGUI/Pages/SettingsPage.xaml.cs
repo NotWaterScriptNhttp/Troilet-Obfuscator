@@ -28,7 +28,7 @@ namespace TroiletGUI.Pages
 
         public void SetObfuscator(PluginBase? pb)
         {
-            if (pb != null && !(pb is IObfuscatorPlugin op))
+            if (pb == null || !(pb is IObfuscatorPlugin op))
                 return;
 
             SelectedProtector = pb;
