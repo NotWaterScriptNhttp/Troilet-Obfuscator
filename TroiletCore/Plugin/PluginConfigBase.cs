@@ -6,32 +6,35 @@ using Newtonsoft.Json.Linq;
 
 namespace TroiletCore.Plugin
 {
-    internal class PluginConfigConverter : JsonConverter<PluginConfigBase>
-    {
-        public override PluginConfigBase? ReadJson(JsonReader reader, Type objectType, PluginConfigBase? existingValue, bool hasExistingValue, JsonSerializer serializer)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void WriteJson(JsonWriter writer, PluginConfigBase? value, JsonSerializer serializer)
-        {
-            if (value == null)
-            {
-                writer.WriteNull();
-                return;
-            }
-
-            JObject sections = new JObject();
-            foreach (KeyValuePair<string, PSettingSection> kvp in value._Sections)
-                sections.Add(new JProperty(kvp.Key, JToken.FromObject(kvp.Value)));
-            sections.WriteTo(writer);
-        }
-    }
-
-    [JsonConverter(typeof(PluginConfigConverter))]
+    [JsonObject(MemberSerialization = MemberSerialization.OptIn)]
     public abstract class PluginConfigBase
     {
-        internal Dictionary<string, PSettingSection> _Sections = new Dictionary<string, PSettingSection>();
+        private class SectionsConverter : JsonConverter<Dictionary<string, PSettingSection>>
+        {
+            public override Dictionary<string, PSettingSection>? ReadJson(JsonReader reader, Type objectType, Dictionary<string, PSettingSection>? existingValue, bool hasExistingValue, JsonSerializer serializer)
+            {
+                throw new NotImplementedException();
+            }
+
+            public override void WriteJson(JsonWriter writer, Dictionary<string, PSettingSection>? value, JsonSerializer serializer)
+            {
+                if (value == null)
+                {
+                    writer.WriteNull();
+                    return;
+                }
+
+                JObject o = new JObject();
+                foreach (KeyValuePair<string, PSettingSection> kvp in value)
+                    o.Add(kvp.Key, JToken.FromObject(kvp.Value, serializer));
+
+                o.WriteTo(writer);
+            }
+        }
+
+        [JsonProperty("Sections")]
+        [JsonConverter(typeof(SectionsConverter))]
+        private Dictionary<string, PSettingSection> _Sections = new Dictionary<string, PSettingSection>();
         public PSettingSection[] Sections => _Sections.Values.ToArray();
 
         protected PSettingSection AddSection(string name)
@@ -105,6 +108,12 @@ namespace TroiletCore.Plugin
             }
 
             return defValue;
+        }
+
+        public string SaveAsJSON() => JsonConvert.SerializeObject(this);
+        public void LoadAsJSON(string json)
+        {
+            //var cfg = JsonConvert.DeserializeObject<PluginConfigBase>(json);
         }
     }
 }

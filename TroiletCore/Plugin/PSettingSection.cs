@@ -6,38 +6,40 @@ using Newtonsoft.Json.Linq;
 
 namespace TroiletCore.Plugin
 {
-    internal class SectionConverter : JsonConverter<PSettingSection>
-    {
-        public override PSettingSection? ReadJson(JsonReader reader, Type objectType, PSettingSection? existingValue, bool hasExistingValue, JsonSerializer serializer)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void WriteJson(JsonWriter writer, PSettingSection? value, JsonSerializer serializer)
-        {
-            if (value == null)
-            {
-                (new JObject()).WriteTo(writer);
-                return;
-            }
-
-            JObject o = new JObject();
-            foreach (KeyValuePair<string, PluginSetting> kvp in value.Settings)
-            {
-                // No need to save labels
-                if (kvp.Value.Type == PluginSettingType.Label)
-                    continue;
-
-                o.Add(kvp.Key, JToken.FromObject(kvp.Value));
-            }
-            o.WriteTo(writer);
-        }
-    }
-
-    [JsonConverter(typeof(SectionConverter))]
+    [JsonObject(MemberSerialization = MemberSerialization.OptIn)]
     public sealed class PSettingSection
     {
+        private class SettingsConverter : JsonConverter<Dictionary<string, PluginSetting>>
+        {
+            public override Dictionary<string, PluginSetting>? ReadJson(JsonReader reader, Type objectType, Dictionary<string, PluginSetting>? existingValue, bool hasExistingValue, JsonSerializer serializer)
+            {
+                throw new NotImplementedException();
+            }
+
+            public override void WriteJson(JsonWriter writer, Dictionary<string, PluginSetting>? value, JsonSerializer serializer)
+            {
+                if (value == null)
+                {
+                    writer.WriteNull();
+                    return;
+                }
+
+                JArray a = new JArray();
+                foreach (KeyValuePair<string, PluginSetting> kvp in value)
+                {
+                    if (kvp.Value.Type == PluginSettingType.Label)
+                        continue;
+
+                    a.Add(JToken.FromObject(kvp.Value, serializer));
+                }
+
+                a.WriteTo(writer);
+            }
+        }
+
         public string Name { get; private set; }
+        [JsonProperty("Settings")]
+        [JsonConverter(typeof(SettingsConverter))]
         public Dictionary<string, PluginSetting> Settings { get; private set; } = new Dictionary<string, PluginSetting>();
 
         private void AddSetting(PluginSetting setting) => Settings[setting.Name] = setting;

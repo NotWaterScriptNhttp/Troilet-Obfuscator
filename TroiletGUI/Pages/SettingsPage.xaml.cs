@@ -35,7 +35,11 @@ namespace TroiletGUI.Pages
             ObfuscatorPicker.SelectedItem = pb;
 
             settingItems.Children.Clear();
-            Console.WriteLine(JsonConvert.SerializeObject(pb.Config));
+            if (pb.Config == null)
+                return;
+
+            string json = pb.Config.SaveAsJSON();
+            Console.WriteLine(json);
             /*if (pb != null && pb.Config != null)
                 foreach (object s in pb.Config.Settings)
                 {
