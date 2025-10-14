@@ -160,7 +160,7 @@ namespace TroiletGUI.Pages
                     foreach (SettingSection ss in settingTabs.Children)
                         ss.IsSelected = false;
 
-                    _SelectedSection = s;
+                    AddSettings(_SelectedSection = s);
                     sec.IsSelected = true;
                 };
 
