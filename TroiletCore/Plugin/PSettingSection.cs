@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
+
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -42,8 +42,12 @@ namespace TroiletCore.Plugin
                 JObject o = new JObject();
                 foreach (KeyValuePair<string, PluginSetting> kvp in value)
                 {
-                    if (kvp.Value.Type == PluginSettingType.Label)
-                        continue;
+                    switch (kvp.Value.Type)
+                    {
+                        case PluginSettingType.Label:
+                        case PluginSettingType.Button:
+                            continue;
+                    }
 
                     o.Add(kvp.Key, JToken.FromObject(kvp.Value, serializer));
                 }
@@ -70,6 +74,13 @@ namespace TroiletCore.Plugin
             return this;
         }
         public PSettingSection AddLabel(string name, string lbl) => AddLabel(name, lbl, out _);
+
+        public PSettingSection AddButton(string name, string lbl, Action onClick, out PSettingButton sbtn)
+        {
+            AddSetting(sbtn = new PSettingButton(name, lbl, onClick));
+            return this;
+        }
+        public PSettingSection AddButton(string name, string lbl, Action onClick) => AddButton(name, lbl, onClick, out _);
 
         public PSettingSection AddToggle(string name, string lbl, bool val, out PSettingToggle stgl)
         {

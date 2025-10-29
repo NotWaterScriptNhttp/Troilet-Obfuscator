@@ -1,18 +1,6 @@
-﻿using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 using TroiletCore.Plugin;
 using TroiletGUI.Controls;
@@ -55,6 +43,20 @@ namespace TroiletGUI.Pages
                             l.Foreground = Globals.WHITE;
 
                             settingItems.Children.Add(l);
+                            break;
+                        }
+                    case PluginSettingType.Button:
+                        {
+                            PSettingButton? bs = ps as PSettingButton;
+                            if (bs == null)
+                                break;
+
+                            Button btn = new Button();
+                            btn.Name = name;
+                            btn.Content = bs.Label;
+                            btn.Click += bs.InvokeClick;
+
+                            settingItems.Children.Add(btn);
                             break;
                         }
                     case PluginSettingType.Toggle:

@@ -30,6 +30,7 @@ namespace TroiletCore.Plugin
     public enum PluginSettingType : byte
     {
         Label,
+        Button,
         Toggle,
         Text,
         Range,
