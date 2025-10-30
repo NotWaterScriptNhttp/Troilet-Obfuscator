@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
-
+using System.Windows;
 using Newtonsoft.Json;
 
 using TroiletCore.Plugin;
+using TroiletProt_DotNet.Controls;
 
 namespace TroiletProt_DotNet
 {
@@ -36,6 +37,18 @@ namespace TroiletProt_DotNet
         public PluginConfig()
         {
             Instance = this;
+
+            AddSection("Protections");
+
+            AddSection("Misc")
+                .AddButton("show_exclusions", "Open Exclusions", () =>
+                {
+                    if (ExcludeWindow.Instance == null)
+                    {
+                        MessageBox.Show("No .NET assembly loaded!", "Troilet", MessageBoxButton.OK, MessageBoxImage.Error);
+                        return;
+                    }
+                });
         }
     }
 }
