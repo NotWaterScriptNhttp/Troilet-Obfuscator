@@ -48,6 +48,8 @@ namespace TroiletProt_DotNet
                         MessageBox.Show("No .NET assembly loaded!", "Troilet", MessageBoxButton.OK, MessageBoxImage.Error);
                         return;
                     }
+
+                    ExcludeWindow.Instance.Show();
                 });
         }
     }

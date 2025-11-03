@@ -12,38 +12,52 @@
 
   <ItemGroup>
     <None Remove="Resources\AbstractClass.svg" />
+    <None Remove="Resources\Class.png" />
+    <None Remove="Resources\Event.png" />
     <None Remove="Resources\Event.svg" />
+    <None Remove="Resources\EventPrivate.png" />
     <None Remove="Resources\EventPrivate.svg" />
+    <None Remove="Resources\EventProtected.png" />
     <None Remove="Resources\EventProtected.svg" />
+    <None Remove="Resources\Field.png" />
     <None Remove="Resources\Field.svg" />
+    <None Remove="Resources\FieldPrivate.png" />
     <None Remove="Resources\FieldPrivate.svg" />
+    <None Remove="Resources\FieldProtected.png" />
     <None Remove="Resources\FieldProtected.svg" />
     <None Remove="Resources\ILIcon.png" />
+    <None Remove="Resources\Interface.png" />
     <None Remove="Resources\Interface.svg" />
+    <None Remove="Resources\Method.png" />
     <None Remove="Resources\Method.svg" />
+    <None Remove="Resources\MethodPrivate.png" />
     <None Remove="Resources\MethodPrivate.svg" />
+    <None Remove="Resources\MethodProtected.png" />
     <None Remove="Resources\MethodProtected.svg" />
+    <None Remove="Resources\Property.png" />
     <None Remove="Resources\Property.svg" />
+    <None Remove="Resources\PropertyPrivate.png" />
     <None Remove="Resources\PropertyPrivate.svg" />
+    <None Remove="Resources\PropertyProtected.png" />
     <None Remove="Resources\PropertyProtected.svg" />
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="Resources\AbstractClass.svg" />
-    <EmbeddedResource Include="Resources\Event.svg" />
-    <EmbeddedResource Include="Resources\EventPrivate.svg" />
-    <EmbeddedResource Include="Resources\EventProtected.svg" />
-    <EmbeddedResource Include="Resources\Field.svg" />
-    <EmbeddedResource Include="Resources\FieldPrivate.svg" />
-    <EmbeddedResource Include="Resources\FieldProtected.svg" />
+    <EmbeddedResource Include="Resources\Class.png" />
+    <EmbeddedResource Include="Resources\Event.png" />
+    <EmbeddedResource Include="Resources\EventPrivate.png" />
+    <EmbeddedResource Include="Resources\EventProtected.png" />
+    <EmbeddedResource Include="Resources\Field.png" />
+    <EmbeddedResource Include="Resources\FieldPrivate.png" />
+    <EmbeddedResource Include="Resources\FieldProtected.png" />
     <EmbeddedResource Include="Resources\ILIcon.png" />
-    <EmbeddedResource Include="Resources\Interface.svg" />
-    <EmbeddedResource Include="Resources\Method.svg" />
-    <EmbeddedResource Include="Resources\MethodPrivate.svg" />
-    <EmbeddedResource Include="Resources\MethodProtected.svg" />
-    <EmbeddedResource Include="Resources\Property.svg" />
-    <EmbeddedResource Include="Resources\PropertyPrivate.svg" />
-    <EmbeddedResource Include="Resources\PropertyProtected.svg" />
+    <EmbeddedResource Include="Resources\Interface.png" />
+    <EmbeddedResource Include="Resources\Method.png" />
+    <EmbeddedResource Include="Resources\MethodPrivate.png" />
+    <EmbeddedResource Include="Resources\MethodProtected.png" />
+    <EmbeddedResource Include="Resources\Property.png" />
+    <EmbeddedResource Include="Resources\PropertyPrivate.png" />
+    <EmbeddedResource Include="Resources\PropertyProtected.png" />
   </ItemGroup>
 
   <ItemGroup>

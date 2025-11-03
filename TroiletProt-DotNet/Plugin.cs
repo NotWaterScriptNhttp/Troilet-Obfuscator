@@ -6,11 +6,14 @@ using dnlib.DotNet.Emit;
 
 using TroiletCore;
 using TroiletCore.Plugin;
+using TroiletProt_DotNet.Controls;
 
 namespace TroiletProt_DotNet
 {
     public class Plugin : PluginBase, IObfuscatorPlugin
     {
+        private AssemblyDef? LoadedFile = null;
+
         public override string Name => ".NET Obfuscator";
         public override string Description => "Troilet's .NET obfuscator";
         public override string Author => "Troilet Team";
@@ -21,11 +24,13 @@ namespace TroiletProt_DotNet
         string[] IObfuscatorPlugin.PlatformExt { get; set; } = { "exe", "dll" };
         string[]? IObfuscatorPlugin.ShortNames { get; set; } = { "dotnet", "dn" };
 
-        public Stream? GetPlatformIcon(byte[] data)
+        public Stream? LoadFile(byte[] data)
         {
+            ExcludeWindow.Instance = null;
+
             try
-            {
-                AssemblyDef.Load(data);
+            {     
+                ExcludeWindow.Instance = new ExcludeWindow(LoadedFile = AssemblyDef.Load(data));
             } catch (BadImageFormatException _)
             {
                 return null;
@@ -35,25 +40,7 @@ namespace TroiletProt_DotNet
 
         public bool Obfuscate(string file, string output, string[]? deps = null)
         {
-            AssemblyDef asm = AssemblyDef.Load(file);
-
-            foreach (ModuleDef mdl in asm.Modules)
-            {
-                foreach (TypeDef t in mdl.Types)
-                {
-                    foreach (MethodDef m in t.Methods)
-                    {
-                        if (!m.HasBody || !m.Body.HasInstructions)
-                            continue;
-
-                        foreach (Instruction i in m.Body.Instructions)
-                            if (i.OpCode.Code == Code.Ldstr)
-                                i.Operand = "STRING!";
-                    }
-                }
-            }
-
-            asm.Write(output);
+            
             return true;
         }
 

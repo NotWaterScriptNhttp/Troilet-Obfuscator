@@ -1,4 +1,5 @@
-﻿using System;
+﻿using dnlib.DotNet;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -19,9 +20,9 @@ namespace TroiletProt_DotNet.Controls
     /// </summary>
     public partial class ExcludeWindow : Window
     {
-        public static ExcludeWindow? Instance { get; private set; } = null;
+        public static ExcludeWindow? Instance { get; internal set; } = null;
 
-        public ExcludeWindow()
+        public ExcludeWindow(AssemblyDef asm)
         {
             InitializeComponent();
         }

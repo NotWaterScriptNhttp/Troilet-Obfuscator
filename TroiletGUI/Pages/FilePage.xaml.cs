@@ -64,7 +64,7 @@ namespace TroiletGUI.Pages
 
                 if (!isValidExt)
                     continue;
-                if ((istream = op.GetPlatformIcon(data)) != null)
+                if ((istream = op.LoadFile(data)) != null)
                 {
                     SettingsPage.Instance.SetObfuscator(p);
                     break;
