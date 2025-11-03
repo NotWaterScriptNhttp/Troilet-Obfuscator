@@ -34,6 +34,8 @@
     <None Remove="Resources\MethodPrivate.svg" />
     <None Remove="Resources\MethodProtected.png" />
     <None Remove="Resources\MethodProtected.svg" />
+    <None Remove="Resources\Module.png" />
+    <None Remove="Resources\Namespace.png" />
     <None Remove="Resources\Property.png" />
     <None Remove="Resources\Property.svg" />
     <None Remove="Resources\PropertyPrivate.png" />
@@ -55,6 +57,8 @@
     <EmbeddedResource Include="Resources\Method.png" />
     <EmbeddedResource Include="Resources\MethodPrivate.png" />
     <EmbeddedResource Include="Resources\MethodProtected.png" />
+    <EmbeddedResource Include="Resources\Module.png" />
+    <EmbeddedResource Include="Resources\Namespace.png" />
     <EmbeddedResource Include="Resources\Property.png" />
     <EmbeddedResource Include="Resources\PropertyPrivate.png" />
     <EmbeddedResource Include="Resources\PropertyProtected.png" />

@@ -5,12 +5,16 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:TroiletProt_DotNet.Controls"
         mc:Ignorable="d"
-        Title="ExcludeWindow" Height="450" Width="800">
+        Background="#FF1E1E1E"
+        ResizeMode="CanResizeWithGrip" AllowsTransparency="True"
+        WindowStartupLocation="CenterScreen"
+        Title="ExcludeWindow" Height="500" Width="370" WindowStyle="None" BorderBrush="White" BorderThickness="1,1,1,1" Activated="Window_Activated" Deactivated="Window_Deactivated" Loaded="Window_Loaded">
     <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="15*"/>
-            <RowDefinition Height="202*"/>
-        </Grid.RowDefinitions>
-
+        <Grid Background="#FF2D2D2D" Height="38" VerticalAlignment="Top" MouseDown="Grid_MouseDown">
+            <Label x:Name="wndname" VerticalContentAlignment="Center" FontSize="16" Margin="0,0,108,0" Foreground="White"/>
+            <Label x:Name="wndclosebtn" Content="X" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" FontSize="18" Foreground="White" HorizontalAlignment="Right" Width="38"/>
+        </Grid>
+        <TreeView x:Name="explorer" Margin="0,38,0,0" Background="{x:Null}" BorderBrush="{x:Null}" Foreground="White" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Auto">
+        </TreeView>
     </Grid>
 </Window>

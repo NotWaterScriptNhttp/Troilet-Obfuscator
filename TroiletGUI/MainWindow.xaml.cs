@@ -41,10 +41,7 @@ namespace TroiletGUI
             {
 
             });
-            wndclosebtn.MakeButton((s, e) =>
-            {
-                Close();
-            });
+            wndclosebtn.MakeButton((s, e) => Close());
 
             AddPage(sidefilebtn, new FilePage());
             AddPage(sidepluginsbtn, new PluginPage());
