@@ -100,7 +100,7 @@ namespace TroiletGUI.Pages
             SelectedFile = nfile;
             selectedFile.Text = SelectedFile.Length <= 76 ? SelectedFile : SelectedFile.Substring(0, 38) + "..." + SelectedFile.Substring(SelectedFile.Length - 38, 38);
             fileNameLbl.Content = System.IO.Path.GetFileName(SelectedFile);
-            fileSizeLbl.Content = $"Filesize: 0x{(data == null ? 0 : data.Length):X8}";
+            fileSizeLbl.Content = $"Filesize: {Math.Round(data == null ? 0 : data.Length / 1024f, 2)} kB";
             if (data != null)
                 fileIcon.Source = GetIcon(data, System.IO.Path.GetExtension(nfile));
             else fileIcon.Source = null;
