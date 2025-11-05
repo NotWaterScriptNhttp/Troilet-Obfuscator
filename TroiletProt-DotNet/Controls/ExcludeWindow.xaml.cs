@@ -60,10 +60,27 @@ namespace TroiletProt_DotNet.Controls
             if (explorer.HasItems)
                 return;
 
+            DNImageCache.InitImages();
+
             foreach (var mdl in Asm.Modules)
             {
                 TreeViewItem mdlItem = new TreeViewItem();
-                mdlItem.Header = new CheckableItem(null, mdl.Name);
+                mdlItem.IsExpanded = true;
+                mdlItem.Header = new CheckableItem(DNImageCache.GetImage(DNImage.Module), mdl.Name);
+
+                Dictionary<string, TreeViewItem> nsItems = new Dictionary<string, TreeViewItem>();
+                foreach (TypeDef t in mdl.Types)
+                {
+                    string ns = t.Namespace;
+                    if (string.IsNullOrEmpty(ns))
+                        ns = "-";
+
+                    TreeViewItem nsItem;
+                    if (!nsItems.TryGetValue(ns, out nsItem))
+                    {
+                        nsItem = new TreeViewItem();
+                    }
+                }
 
                 explorer.Items.Add(mdlItem);
             }

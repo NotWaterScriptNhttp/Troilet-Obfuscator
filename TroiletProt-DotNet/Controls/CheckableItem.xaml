@@ -7,9 +7,9 @@
              mc:Ignorable="d" 
              d:DesignHeight="18" d:DesignWidth="200">
     <Grid>
-        <TextBlock x:Name="itemname" Margin="36,0,0,0"/>
-        <Image x:Name="itemimage" Margin="18,0,0,0" HorizontalAlignment="Left" Width="18"/>
-        <CheckBox x:Name="itemexclude" HorizontalAlignment="Left" Margin="1,1,0,-3"/>
+        <TextBlock x:Name="itemname" Margin="37,-3,0,0" FontSize="16" Foreground="White"/>
+        <Image x:Name="itemimage" Margin="19,0,0,0" HorizontalAlignment="Left" Width="16" Height="16"/>
+        <CheckBox x:Name="itemexclude" HorizontalAlignment="Left" Margin="1,1.5,0,1.5"/>
 
     </Grid>
 </UserControl>

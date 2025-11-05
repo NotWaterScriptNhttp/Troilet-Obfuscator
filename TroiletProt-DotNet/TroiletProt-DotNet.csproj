@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <None Remove="Resources\AbstractClass.svg" />
+    <None Remove="Resources\Add.png" />
     <None Remove="Resources\Class.png" />
     <None Remove="Resources\Event.png" />
     <None Remove="Resources\Event.svg" />
@@ -42,9 +43,11 @@
     <None Remove="Resources\PropertyPrivate.svg" />
     <None Remove="Resources\PropertyProtected.png" />
     <None Remove="Resources\PropertyProtected.svg" />
+    <None Remove="Resources\Remove.png" />
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="Resources\Add.png" />
     <EmbeddedResource Include="Resources\Class.png" />
     <EmbeddedResource Include="Resources\Event.png" />
     <EmbeddedResource Include="Resources\EventPrivate.png" />
@@ -62,6 +65,7 @@
     <EmbeddedResource Include="Resources\Property.png" />
     <EmbeddedResource Include="Resources\PropertyPrivate.png" />
     <EmbeddedResource Include="Resources\PropertyProtected.png" />
+    <EmbeddedResource Include="Resources\Remove.png" />
   </ItemGroup>
 
   <ItemGroup>

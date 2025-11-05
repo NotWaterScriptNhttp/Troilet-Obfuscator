@@ -21,9 +21,11 @@ namespace TroiletProt_DotNet.Controls
         Field = 16,
         Method = 32,
         Property = 64,
+        Add = 128,
+        Remove = 256,
 
-        Private = 128,
-        Protected = 256
+        Private = 512,
+        Protected = 1024
     }
 
     internal static class DNImageCache
@@ -40,12 +42,34 @@ namespace TroiletProt_DotNet.Controls
         }
         private static void LoadBundle(DNImage imgtype, string name)
         {
-
+            LoadImage(imgtype, name);
+            LoadImage(imgtype | DNImage.Private, name + "Private");
+            LoadImage(imgtype | DNImage.Protected, name + "Protected");
         }
 
         public static void InitImages()
         {
+            if (CachedImage.Count > 0)
+                return;
 
+            LoadImage(DNImage.Class, "Class");
+            LoadImage(DNImage.Interface, "Interface");
+            LoadImage(DNImage.Module, "Module");
+            LoadImage(DNImage.Namespace, "Namespace");
+            LoadBundle(DNImage.Event, "Event");
+            LoadBundle(DNImage.Field, "Field");
+            LoadBundle(DNImage.Property, "Property");
+            LoadBundle(DNImage.Method, "Method");
+            LoadImage(DNImage.Add, "Add");
+            LoadImage(DNImage.Remove, "Remove");
+        }
+
+        public static ImageSource? GetImage(DNImage img)
+        {
+            if (CachedImage.TryGetValue(img, out var cimg))
+                return cimg;
+
+            return null;
         }
     }
 }
