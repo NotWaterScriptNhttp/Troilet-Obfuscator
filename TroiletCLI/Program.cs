@@ -9,6 +9,17 @@ namespace TroiletCLI
     {
         public static void Main(string[] args)
         {
+            string[] args2 = new string[]
+            {
+                "uzenina3:",
+                "path1:\"Mam rad peri.txt\"",
+                "/xQc",
+                "val:Cecek_Cecek1"
+            };
+
+            ArgParser parser = new ArgParser();
+            parser.Parse(args2);
+
             new TroiletConfig();
 
             PluginManager.Init();
