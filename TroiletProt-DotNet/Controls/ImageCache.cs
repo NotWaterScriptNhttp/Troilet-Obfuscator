@@ -23,9 +23,10 @@ namespace TroiletProt_DotNet.Controls
         Property = 64,
         Add = 128,
         Remove = 256,
+        Enum = 512,
 
-        Private = 512,
-        Protected = 1024
+        Private = 1024,
+        Protected = 2048
     }
 
     internal static class DNImageCache
@@ -62,6 +63,7 @@ namespace TroiletProt_DotNet.Controls
             LoadBundle(DNImage.Method, "Method");
             LoadImage(DNImage.Add, "Add");
             LoadImage(DNImage.Remove, "Remove");
+            LoadImage(DNImage.Enum, "Enumeration");
         }
 
         public static ImageSource? GetImage(DNImage img)

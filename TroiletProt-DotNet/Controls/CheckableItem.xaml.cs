@@ -20,12 +20,32 @@ namespace TroiletProt_DotNet.Controls
     /// </summary>
     public partial class CheckableItem : UserControl
     {
-        public CheckableItem(ImageSource img, string name)
+        private TreeViewItem? _Parent = null;
+        private TreeViewItem _Item;
+
+        public CheckableItem(TreeViewItem? parent, ImageSource img, string name)
         {
+            _Parent = parent;
+
             InitializeComponent();
 
             itemname.Text = name;
             itemimage.Source = img;
+
+            _Item = new TreeViewItem();
+            _Item.Header = this;
+            
+            if (_Parent != null)
+                _Parent.Items.Add(_Item);
+        }
+        public CheckableItem(CheckableItem parent, ImageSource img, string name) : this(parent._Item, img, name) {}
+
+        public CheckableItem(ImageSource img, string name) : this((TreeViewItem?)null, img, name) {}
+
+        public TreeViewItem GetItem(bool expanded = false)
+        {
+            _Item.IsExpanded = expanded;
+            return _Item;
         }
     }
 }

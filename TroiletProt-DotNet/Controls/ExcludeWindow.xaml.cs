@@ -64,25 +64,40 @@ namespace TroiletProt_DotNet.Controls
 
             foreach (var mdl in Asm.Modules)
             {
-                TreeViewItem mdlItem = new TreeViewItem();
-                mdlItem.IsExpanded = true;
-                mdlItem.Header = new CheckableItem(DNImageCache.GetImage(DNImage.Module), mdl.Name);
+                CheckableItem mdlItem = new CheckableItem(DNImageCache.GetImage(DNImage.Module), mdl.Name);
 
-                Dictionary<string, TreeViewItem> nsItems = new Dictionary<string, TreeViewItem>();
+                Dictionary<string, CheckableItem> nsItems = new Dictionary<string, CheckableItem>();
                 foreach (TypeDef t in mdl.Types)
                 {
                     string ns = t.Namespace;
                     if (string.IsNullOrEmpty(ns))
                         ns = "-";
 
-                    TreeViewItem nsItem;
+                    CheckableItem nsItem;
                     if (!nsItems.TryGetValue(ns, out nsItem))
                     {
-                        nsItem = new TreeViewItem();
+                        nsItem = new CheckableItem(mdlItem, DNImageCache.GetImage(DNImage.Namespace), ns);
+                        nsItems.Add(ns, nsItem);
                     }
+
+                    DNImage timg = DNImage.Class;
+                    if (t.IsEnum)
+                        timg = DNImage.Enum;
+                    else if (t.IsInterface)
+                        timg = DNImage.Interface;
+
+                    CheckableItem tItem = new CheckableItem(nsItem, DNImageCache.GetImage(timg), t.Name);
+                    foreach (EventDef ev in t.Events)
+                        new CheckableItem(tItem, DNImageCache.GetImage(DNImage.Event), ev.Name);
+                    foreach (FieldDef fld in t.Fields)
+                        new CheckableItem(tItem, DNImageCache.GetImage(DNImage.Field), fld.Name);
+                    foreach (PropertyDef prop in t.Properties)
+                        new CheckableItem(tItem, DNImageCache.GetImage(DNImage.Property), prop.Name);
+                    foreach (MethodDef m in t.Methods)
+                        new CheckableItem(tItem, DNImageCache.GetImage(DNImage.Method), m.Name);
                 }
 
-                explorer.Items.Add(mdlItem);
+                explorer.Items.Add(mdlItem.GetItem(true));
             }
         }
     }
