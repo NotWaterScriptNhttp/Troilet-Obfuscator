@@ -18,34 +18,19 @@ namespace TroiletProt_DotNet.Controls
     /// <summary>
     /// Interakční logika pro NonCheckableItem.xaml
     /// </summary>
-    public partial class CheckableItem : UserControl
+    public partial class CheckableItem : ExclusionItemBase
     {
-        private TreeViewItem? _Parent = null;
-        private TreeViewItem _Item;
+        public CheckableItem(ImageSource img, string name) => Setup(img, name);
+        public CheckableItem(TreeViewItem? parent, ImageSource img, string name) => Setup(parent, img, name);
+        public CheckableItem(ExclusionItemBase parent, ImageSource img, string name) => Setup(parent, img, name);
 
-        public CheckableItem(TreeViewItem? parent, ImageSource img, string name)
+        public override void Setup(TreeViewItem? parent, ImageSource img, string name)
         {
-            _Parent = parent;
-
             InitializeComponent();
+            base.Setup(parent, img, name);
 
-            itemname.Text = name;
-            itemimage.Source = img;
-
-            _Item = new TreeViewItem();
-            _Item.Header = this;
-            
-            if (_Parent != null)
-                _Parent.Items.Add(_Item);
-        }
-        public CheckableItem(CheckableItem parent, ImageSource img, string name) : this(parent._Item, img, name) {}
-
-        public CheckableItem(ImageSource img, string name) : this((TreeViewItem?)null, img, name) {}
-
-        public TreeViewItem GetItem(bool expanded = false)
-        {
-            _Item.IsExpanded = expanded;
-            return _Item;
+            itemname.Text = _Name;
+            itemimage.Source = _Image;
         }
     }
 }

@@ -64,8 +64,8 @@ namespace TroiletProt_DotNet.Controls
 
             foreach (var mdl in Asm.Modules)
             {
+                //CheckableItem mdlItem = new CheckableItem(DNImageCache.GetImage(DNImage.Module), mdl.Name);
                 CheckableItem mdlItem = new CheckableItem(DNImageCache.GetImage(DNImage.Module), mdl.Name);
-
                 Dictionary<string, CheckableItem> nsItems = new Dictionary<string, CheckableItem>();
                 foreach (TypeDef t in mdl.Types)
                 {
@@ -86,7 +86,7 @@ namespace TroiletProt_DotNet.Controls
                     else if (t.IsInterface)
                         timg = DNImage.Interface;
 
-                    CheckableItem tItem = new CheckableItem(nsItem, DNImageCache.GetImage(timg), t.Name);
+                    ClassItem tItem = new ClassItem(nsItem, DNImageCache.GetImage(timg), t.Name);
                     foreach (EventDef ev in t.Events)
                         new CheckableItem(tItem, DNImageCache.GetImage(DNImage.Event), ev.Name);
                     foreach (FieldDef fld in t.Fields)
