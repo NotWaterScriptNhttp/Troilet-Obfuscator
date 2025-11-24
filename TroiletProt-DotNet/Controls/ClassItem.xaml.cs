@@ -33,6 +33,15 @@ namespace TroiletProt_DotNet.Controls
 
             itemname.Text = name;
             itemimage.Source = img;
+
+            itemexclude.Checked += (s, e) =>
+            {
+                Console.WriteLine("Checked");
+            };
+            itemexclude.Unchecked += (s, e) =>
+            {
+                Console.WriteLine("Unchecked");
+            };
         }
 
         private void itemname_MouseEnter(object sender, MouseEventArgs e)
@@ -44,12 +53,13 @@ namespace TroiletProt_DotNet.Controls
             itemname.Foreground = new SolidColorBrush(Color.FromRgb(255, 255, 255));
         }
 
-        private void itemname_MouseUp(object sender, MouseButtonEventArgs e)
+        private void itemname_MouseDown(object sender, MouseButtonEventArgs e)
         {
             IsClassRedacted = !IsClassRedacted;
             if (IsClassRedacted)
                 itemname.TextDecorations = TextDecorations.Strikethrough;
             else itemname.TextDecorations = null;
+            e.Handled = true;
         }
     }
 }
