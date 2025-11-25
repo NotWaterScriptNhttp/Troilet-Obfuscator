@@ -7,6 +7,7 @@ using dnlib.DotNet.Emit;
 using TroiletCore;
 using TroiletCore.Plugin;
 using TroiletProt_DotNet.Controls;
+using TroiletProt_DotNet.Protections;
 
 namespace TroiletProt_DotNet
 {
@@ -24,6 +25,11 @@ namespace TroiletProt_DotNet
         string[] IObfuscatorPlugin.PlatformExt { get; set; } = { "exe", "dll" };
         string[]? IObfuscatorPlugin.ShortNames { get; set; } = { "dotnet", "dn" };
 
+        private void CreateProtections(out List<ProtectionBase> prots)
+        {
+
+        }
+
         public Stream? LoadFile(byte[] data)
         {
             ExcludeWindow.Instance = null;
@@ -40,13 +46,21 @@ namespace TroiletProt_DotNet
 
         public bool Obfuscate(string file, string output, string[]? deps = null)
         {
-            
-            return true;
-        }
+            if (LoadedFile == null)
+                return false;
 
-        public override void OnLoad()
-        {
-            Console.WriteLine(typeof(Plugin).Assembly.Location);
+            foreach (ModuleDef mdl in LoadedFile.Modules)
+            {
+                List<ProtectionBase> protections;
+                CreateProtections(out protections);
+
+                foreach (TypeDef t in mdl.Types)
+                {
+                    IHasCustomAttribute attrs = t;
+                }
+            }
+
+            return true;
         }
     }
 }

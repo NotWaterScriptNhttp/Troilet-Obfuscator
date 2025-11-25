@@ -38,7 +38,9 @@ namespace TroiletProt_DotNet
         {
             Instance = this;
 
-            AddSection("Protections");
+            AddSection("Protections")
+                .AddToggle("embed_prot", "Protect Embeds", false)
+                .AddToggle("const_prot", "Protect Constants", true);
 
             AddSection("Misc")
                 .AddButton("show_exclusions", "Open Exclusions", () =>

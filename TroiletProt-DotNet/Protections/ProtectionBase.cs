@@ -6,6 +6,8 @@ namespace TroiletProt_DotNet.Protections
 {
     public abstract class ProtectionBase
     {
+        public virtual void OnModule(ModuleDef mdl) {}
+
         public virtual void OnMethod(MethodDef method) {}
         public virtual void OnField(FieldDef field) {}
         public virtual void OnProperty(PropertyDef property) {}
