@@ -60,7 +60,7 @@ namespace TroiletCore.Plugin
             return _Sections[name] = new PSettingSection(name);
         }
 
-        public string GetValue(string section, string setting, string defValue = "")
+        public string GetValueString(string section, string setting, string defValue = "")
         {
             if (!_Sections.TryGetValue(section, out var sec))
                 throw new ApplicationException($"Section '{section}' does not exist!");
@@ -84,7 +84,7 @@ namespace TroiletCore.Plugin
 
             return defValue;
         }
-        public double GetValue(string section, string setting, double defValue = 0)
+        public double GetValueDouble(string section, string setting, double defValue = 0)
         {
             if (!_Sections.TryGetValue(section, out var sec))
                 throw new ApplicationException($"Section '{section}' does not exist!");

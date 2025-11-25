@@ -14,6 +14,7 @@ namespace TroiletProt_DotNet
     public class Plugin : PluginBase, IObfuscatorPlugin
     {
         private AssemblyDef? LoadedFile = null;
+        private List<ProtectionBase> Protections;
 
         public override string Name => ".NET Obfuscator";
         public override string Description => "Troilet's .NET obfuscator";
@@ -24,11 +25,6 @@ namespace TroiletProt_DotNet
         string IObfuscatorPlugin.Platform { get; set; } = ".NET";
         string[] IObfuscatorPlugin.PlatformExt { get; set; } = { "exe", "dll" };
         string[]? IObfuscatorPlugin.ShortNames { get; set; } = { "dotnet", "dn" };
-
-        private void CreateProtections(out List<ProtectionBase> prots)
-        {
-
-        }
 
         public Stream? LoadFile(byte[] data)
         {
@@ -51,16 +47,28 @@ namespace TroiletProt_DotNet
 
             foreach (ModuleDef mdl in LoadedFile.Modules)
             {
-                List<ProtectionBase> protections;
-                CreateProtections(out protections);
+                Dictionary<ProtectionBase, IProtectionSession> sessions = new();
+                foreach (ProtectionBase p in Protections)
+                    sessions.Add(p, p.StartSession(mdl));
 
                 foreach (TypeDef t in mdl.Types)
-                {
-                    IHasCustomAttribute attrs = t;
-                }
+                    foreach (KeyValuePair<ProtectionBase, IProtectionSession> kvp in sessions)
+                        kvp.Key.OnType(kvp.Value, t);
+
+                foreach (KeyValuePair<ProtectionBase, IProtectionSession> kvp in sessions)
+                    kvp.Value.EndSession();
             }
+            
 
             return true;
+        }
+
+        public override void OnLoad()
+        {
+            Protections = new()
+            {
+                new ConstantProtection()
+            };
         }
     }
 }
