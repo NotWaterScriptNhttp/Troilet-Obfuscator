@@ -6,8 +6,8 @@ namespace TroiletProt_DotNet.Protections
 {
     public abstract class ProtectionBase
     {
-        public abstract IProtectionSession StartSession(ModuleDef module);
+        public abstract ProtectionSession StartSession(ModuleDef module);
 
-        public virtual void OnType(IProtectionSession session, TypeDef type) {}
+        public virtual void OnType(ProtectionSession session, TypeDef type) {}
     }
 }

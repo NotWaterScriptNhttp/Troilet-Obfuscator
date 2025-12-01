@@ -9,20 +9,19 @@ namespace TroiletProt_DotNet.Protections
 {
     internal class ConstantProtection : ProtectionBase
     {
-        public class ConstantSession : IProtectionSession
+        public class ConstantSession : ProtectionSession
         {
-            ModuleDef Module { get; set; }
+            public ConstantSession(ModuleDef mdl) => Module = mdl;
 
-            void EndSession()
+            public override void EndSession()
             {
-                
+                throw new NotImplementedException();
             }
         }
 
-        public override IProtectionSession StartSession(ModuleDef module)
+        public override ProtectionSession StartSession(ModuleDef module)
         {
-            ConstantSession s = new ConstantSession();
-            
+            ConstantSession s = new ConstantSession(module);
 
             return s;
         }

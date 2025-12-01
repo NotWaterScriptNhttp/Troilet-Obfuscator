@@ -47,15 +47,15 @@ namespace TroiletProt_DotNet
 
             foreach (ModuleDef mdl in LoadedFile.Modules)
             {
-                Dictionary<ProtectionBase, IProtectionSession> sessions = new();
+                Dictionary<ProtectionBase, ProtectionSession> sessions = new();
                 foreach (ProtectionBase p in Protections)
                     sessions.Add(p, p.StartSession(mdl));
 
                 foreach (TypeDef t in mdl.Types)
-                    foreach (KeyValuePair<ProtectionBase, IProtectionSession> kvp in sessions)
+                    foreach (KeyValuePair<ProtectionBase, ProtectionSession> kvp in sessions)
                         kvp.Key.OnType(kvp.Value, t);
 
-                foreach (KeyValuePair<ProtectionBase, IProtectionSession> kvp in sessions)
+                foreach (KeyValuePair<ProtectionBase, ProtectionSession> kvp in sessions)
                     kvp.Value.EndSession();
             }
             

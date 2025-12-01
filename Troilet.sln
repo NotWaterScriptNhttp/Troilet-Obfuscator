@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.0.31919.166
+# Visual Studio Version 18
+VisualStudioVersion = 18.0.11111.16 d18.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TroiletCore", "TroiletCore\TroiletCore.csproj", "{DDBE6C85-F216-4DE7-8F45-006554A6795D}"
 EndProject
@@ -10,6 +10,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TroiletProt-DotNet", "TroiletProt-DotNet\TroiletProt-DotNet.csproj", "{0054502E-ED21-4810-B3BC-34984FFDA091}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TroiletGUI", "TroiletGUI\TroiletGUI.csproj", "{AD9ED4E1-5533-47CF-8865-61940074E989}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TroiletProt-Lua", "TroiletProt-Lua\TroiletProt-Lua.csproj", "{7AB32D53-BD15-4BC1-B88A-98753B5AE92F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{AD9ED4E1-5533-47CF-8865-61940074E989}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AD9ED4E1-5533-47CF-8865-61940074E989}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AD9ED4E1-5533-47CF-8865-61940074E989}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7AB32D53-BD15-4BC1-B88A-98753B5AE92F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7AB32D53-BD15-4BC1-B88A-98753B5AE92F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7AB32D53-BD15-4BC1-B88A-98753B5AE92F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7AB32D53-BD15-4BC1-B88A-98753B5AE92F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

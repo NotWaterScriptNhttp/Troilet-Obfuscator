@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <RootNamespace>TroiletProt_Lua</RootNamespace>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Resources\LuaIcon.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\LuaIcon.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\TroiletCore\TroiletCore.csproj" />
+  </ItemGroup>
+
+</Project>
