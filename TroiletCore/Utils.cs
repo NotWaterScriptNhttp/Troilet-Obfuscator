@@ -32,5 +32,22 @@ namespace TroiletCore
 
             return null;
         }
+
+        public static bool CheckBytes(byte[] bytes, int blen, string data)
+        {
+            if (blen > bytes.Length)
+                return false;
+
+            for (int i = 0; i < blen; i++)
+            {
+                char c = data[i];
+                if (c == '?')
+                    continue;
+                if (bytes[i] != (byte)c)
+                    return false;
+            }
+
+            return true;
+        }
     }
 }
