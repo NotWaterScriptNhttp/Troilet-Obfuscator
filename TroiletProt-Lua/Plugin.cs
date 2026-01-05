@@ -21,9 +21,15 @@ namespace TroiletProt_Lua
         public Stream? LoadFile(byte[] fileData)
         {
             using (BinaryReader br = new(new MemoryStream(fileData)))
-                if (br.ReadUInt16() == 0x4D5A)
+            {
+                byte[] data = br.ReadBytes(4);
+                if (Utils.CheckBytes(data, 4, "\x1bLua"))
+                    goto VALID_FILE;
+                if (Utils.CheckBytes(data, 2, "MZ"))
                     return null;
+            }
 
+        VALID_FILE:
             return Utils.GetResourceStream("LuaIcon.png");
         }
 
@@ -34,17 +40,7 @@ namespace TroiletProt_Lua
 
         public override void OnLoad()
         {
-            throw new NotImplementedException();
-        }
-
-        Stream? IObfuscatorPlugin.LoadFile(byte[] fileData)
-        {
-            throw new NotImplementedException();
-        }
-
-        bool IObfuscatorPlugin.Obfuscate(string file, string output, string[]? deps)
-        {
-            throw new NotImplementedException();
+            
         }
     }
 }

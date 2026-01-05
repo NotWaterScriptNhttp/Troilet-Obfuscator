@@ -19,4 +19,11 @@
     <ProjectReference Include="..\TroiletCore\TroiletCore.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Reference Include="LuaLibV2">
+      <HintPath>..\Dependencies\LuaLibV2.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+  </ItemGroup>
+
 </Project>
