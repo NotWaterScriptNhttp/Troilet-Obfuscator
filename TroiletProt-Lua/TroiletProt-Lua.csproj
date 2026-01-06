@@ -5,6 +5,7 @@
     <RootNamespace>TroiletProt_Lua</RootNamespace>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <BaseOutputPath>$(SolutionDir)Plugins</BaseOutputPath>
   </PropertyGroup>
 
   <ItemGroup>
