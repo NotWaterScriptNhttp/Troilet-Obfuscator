@@ -67,6 +67,7 @@ namespace TroiletProt_DotNet
         {
             Protections = new()
             {
+                new Embedder(),
                 new ConstantProtection()
             };
         }

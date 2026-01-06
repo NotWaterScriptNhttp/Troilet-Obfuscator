@@ -1,10 +1,12 @@
-﻿using dnlib.DotNet;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+
+using dnlib.DotNet;
+using dnlib.DotNet.Emit;
 
 namespace TroiletProt_DotNet.Protections
 {
@@ -33,10 +35,16 @@ namespace TroiletProt_DotNet.Protections
         public override ProtectionSession StartSession(ModuleDef module)
         {
             ConstantSession s = new ConstantSession(module);
-            s.Type = new TypeDefUser("ConstantProtectionType");
+            s.Type = new TypeDefUser(typeof(ConstantProtection).Name, Globals.ProtectionNS);
 
             ICorLibTypes types = module.CorLibTypes;
-            MethodDef smeth = new MethodDefUser("UnprotectString", new MethodSig(CallingConvention.Default, 1, types.String, new SZArraySig(types.Byte)));
+            MethodDef smeth = new MethodDefUser("UnprotectString", new MethodSig(CallingConvention.Default, 1, types.String, types.String));
+            {
+                CilBody body = smeth.Body = new CilBody();
+
+                body.Instructions.Add(new Instruction(OpCodes.Ret));
+            }
+
             s.Type.Methods.Add(smeth);
 
             void CheckType(TypeDef type, int depth = 0)
@@ -47,7 +55,24 @@ namespace TroiletProt_DotNet.Protections
                 foreach (TypeDef t in type.NestedTypes)
                     CheckType(t, depth + 1);
 
-                
+                foreach (MethodDef m in type.Methods)
+                    if (m.HasBody)
+                    {
+                        CilBody body = m.Body;
+                        IList<Instruction> instrs = new List<Instruction>();
+                        foreach (Instruction i in body.Instructions)
+                        {
+                            switch (i.OpCode.Code)
+                            {
+                                case Code.Ldstr:
+                                    s.Val++;
+                                    break;
+
+                                default:
+                                    continue;
+                            }
+                        }
+                    }
             }
 
             foreach (TypeDef t in module.Types)
