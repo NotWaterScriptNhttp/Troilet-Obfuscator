@@ -56,7 +56,7 @@ namespace TroiletProt_DotNet
                         kvp.Key.OnType(kvp.Value, t);
 
                 foreach (KeyValuePair<ProtectionBase, ProtectionSession> kvp in sessions)
-                    kvp.Value.EndSession();
+                    Console.WriteLine(kvp.Value.EndSession());
             }
             
 
