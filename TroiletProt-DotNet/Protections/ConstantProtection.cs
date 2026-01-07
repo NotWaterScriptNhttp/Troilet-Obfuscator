@@ -57,7 +57,7 @@ namespace TroiletProt_DotNet.Protections
         public override ProtectionSession StartSession(ModuleDef module)
         {
             ConstantSession s = new ConstantSession(module);
-            s.Type = Globals.CreateType<ConstantProtection>();
+            s.Type = Globals.CreateType<ConstantProtection>(module);
 
             ICorLibTypes types = module.CorLibTypes;
             MethodDef smeth = Globals.CreateMethod("UnprotectString", new MethodSig(CallingConvention.Default, 1, types.String, types.String));
@@ -114,6 +114,9 @@ namespace TroiletProt_DotNet.Protections
                 body.Instructions.Add(new Instruction(OpCodes.Ldarg_0));
                 body.Instructions.Add(new Instruction(OpCodes.Ret));
                 body.Instructions.ResolveIndexes();
+                body.Instructions.ResolveIndexes(body.Variables);
+                body.Instructions.OptimizeMacros();
+                body.Instructions.OptimizeBranches();
             }
 
             s.Type.Methods.Add(smeth);
@@ -152,6 +155,7 @@ namespace TroiletProt_DotNet.Protections
                         }
 
                         body.UpdateInstructionOffsets();
+                        body.OptimizeMacros();
                         body.OptimizeBranches();
                     }
             }
