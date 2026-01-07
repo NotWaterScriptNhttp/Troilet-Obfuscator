@@ -2,7 +2,6 @@
 using System.IO;
 
 using dnlib.DotNet;
-using dnlib.DotNet.Emit;
 
 using TroiletCore;
 using TroiletCore.Plugin;
@@ -45,7 +44,8 @@ namespace TroiletProt_DotNet
             if (LoadedFile == null)
                 return false;
 
-            foreach (ModuleDef mdl in LoadedFile.Modules)
+            AssemblyDef asm = AssemblyDef.Load(file);
+            foreach (ModuleDef mdl in asm.Modules)
             {
                 Dictionary<ProtectionBase, ProtectionSession> sessions = new();
                 foreach (ProtectionBase p in Protections)
@@ -58,8 +58,8 @@ namespace TroiletProt_DotNet
                 foreach (KeyValuePair<ProtectionBase, ProtectionSession> kvp in sessions)
                     Console.WriteLine(kvp.Value.EndSession());
             }
-            
 
+            asm.Write(output);
             return true;
         }
 
