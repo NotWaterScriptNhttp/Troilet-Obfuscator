@@ -1,12 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Text;
-using System.Threading.Tasks;
+using System.Collections.Generic;
 
 using dnlib.DotNet;
 using dnlib.DotNet.Emit;
+using TroiletProt_DotNet.Extensions;
 
 namespace TroiletProt_DotNet.Protections
 {
@@ -18,6 +17,29 @@ namespace TroiletProt_DotNet.Protections
 
             internal TypeDef? Type = null;
             internal uint Val = 0;
+            internal Dictionary<string, string> Cache = new Dictionary<string, string>();
+
+            internal string ProtectString(string s)
+            {
+                if (Cache.ContainsKey(s))
+                    return Cache[s];
+
+                string res = "";
+                foreach (char c in s)
+                    res += (char)(c ^ (char)0x6969);
+
+                Cache[s] = res;
+                return res;
+            }
+            private string UnprotectString(string s)
+            {
+                string res = "";
+                for (int i = 0; i < s.Length; i++)
+                    res.Insert(i, ((char)(s[i] ^ (char)0x6969)).ToString());
+
+                return res;
+            }
+
 
             public override ProtectionStatistics EndSession()
             {
@@ -35,14 +57,16 @@ namespace TroiletProt_DotNet.Protections
         public override ProtectionSession StartSession(ModuleDef module)
         {
             ConstantSession s = new ConstantSession(module);
-            s.Type = new TypeDefUser(typeof(ConstantProtection).Name, Globals.ProtectionNS);
+            s.Type = Globals.CreateType<ConstantProtection>();
 
             ICorLibTypes types = module.CorLibTypes;
-            MethodDef smeth = new MethodDefUser("UnprotectString", new MethodSig(CallingConvention.Default, 1, types.String, types.String));
+            MethodDef smeth = Globals.CreateMethod("UnprotectString", new MethodSig(CallingConvention.Default, 1, types.String, types.String));
             {
                 CilBody body = smeth.Body = new CilBody();
 
+                body.Instructions.Add(new Instruction(OpCodes.Ldarg_0));
                 body.Instructions.Add(new Instruction(OpCodes.Ret));
+                body.Instructions.ResolveIndexes();
             }
 
             s.Type.Methods.Add(smeth);
@@ -59,12 +83,19 @@ namespace TroiletProt_DotNet.Protections
                     if (m.HasBody)
                     {
                         CilBody body = m.Body;
-                        IList<Instruction> instrs = new List<Instruction>();
-                        foreach (Instruction i in body.Instructions)
+                        body.SimplifyMacros(m.Parameters);
+
+                        for (int i = 0; i < body.Instructions.Count; i++)
                         {
-                            switch (i.OpCode.Code)
+                            Instruction inst = body.Instructions[i];
+                            switch (inst.OpCode.Code)
                             {
                                 case Code.Ldstr:
+                                    string str = (string)inst.Operand;
+
+                                    inst.Operand = str;
+                                    body.Instructions.Insert(++i, new Instruction(OpCodes.Call, smeth));
+
                                     s.Val++;
                                     break;
 
@@ -72,6 +103,9 @@ namespace TroiletProt_DotNet.Protections
                                     continue;
                             }
                         }
+
+                        body.UpdateInstructionOffsets();
+                        body.OptimizeBranches();
                     }
             }
 
