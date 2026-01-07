@@ -31,11 +31,11 @@ namespace TroiletProt_DotNet.Protections
                 Cache[s] = res;
                 return res;
             }
-            private string UnprotectString(string s)
+            private static string UnprotectString(string s)
             {
                 string res = "";
-                for (int i = 0; i < s.Length; i++)
-                    res.Insert(i, ((char)(s[i] ^ (char)0x6969)).ToString());
+                foreach (char c in s)
+                    res += (char)(c ^ (char)0x6969);
 
                 return res;
             }
