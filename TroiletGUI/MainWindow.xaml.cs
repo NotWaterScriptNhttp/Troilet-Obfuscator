@@ -14,6 +14,7 @@ using TroiletCore.Plugin;
 
 using TroiletGUI.Pages;
 using TroiletGUI.Extensions;
+using System.IO;
 
 namespace TroiletGUI
 {
@@ -41,7 +42,23 @@ namespace TroiletGUI
             {
 
             });
-            wndclosebtn.MakeButton((s, e) => Close());
+            wndclosebtn.MakeButton((s, e) => Environment.Exit(0));
+            obfuscatebtn.MakeButton((s, e) =>
+            {
+                PluginBase? obf = SettingsPage.SelectedProtector;
+                if (obf == null || obf is not IObfuscatorPlugin)
+                    return;
+
+                string outDir = System.IO.Path.Combine(Environment.CurrentDirectory, "output");
+                Directory.CreateDirectory(outDir);
+
+                string file = FilePage.SelectedFile;
+                string output = System.IO.Path.Combine(outDir, System.IO.Path.GetFileName(file));
+                Console.WriteLine(output);
+                if (((IObfuscatorPlugin)obf).Obfuscate(file, output, FilePage.Dependencies))
+                    Console.WriteLine("Successfully obfusctated: {0}", System.IO.Path.GetFileName(file));
+                else Console.WriteLine("Failed to obfusctate: {0}", System.IO.Path.GetFileName(file));
+            });
 
             AddPage(sidefilebtn, new FilePage());
             AddPage(sidepluginsbtn, new PluginPage());
