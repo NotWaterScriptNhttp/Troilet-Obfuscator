@@ -64,6 +64,53 @@ namespace TroiletProt_DotNet.Protections
             {
                 CilBody body = smeth.Body = new CilBody();
 
+                IMethod getChars = module.Import<String>("get_Chars");
+                IMethod ctoString = module.Import<Char>("ToString");
+                IMethod insert = module.Import<String>("Insert", new Type[] { typeof(string), typeof(int), typeof(string) });
+                IMethod sLen = module.Import<String>("get_Length");
+
+                body.Variables.Add(new Local(types.String));
+                body.Variables.Add(new Local(types.Int32));
+                body.Variables.Add(new Local(types.Char));
+
+                body.Instructions.Add(new Instruction(OpCodes.Ldstr, ""));
+                body.Instructions.Add(new Instruction(OpCodes.Stloc_0));
+
+                body.Instructions.Add(new Instruction(OpCodes.Ldc_I4_0));
+                body.Instructions.Add(new Instruction(OpCodes.Stloc_1));
+
+                body.Instructions.Add(new Instruction(OpCodes.Br, new InstrIdx(0)));
+
+                body.Instructions.Add(new Instruction(OpCodes.Ldloc_0));
+                body.Instructions.Add(new Instruction(OpCodes.Ldloc_1));
+
+                body.Instructions.Add(new Instruction(OpCodes.Ldarg_0));
+                body.Instructions.Add(new Instruction(OpCodes.Ldloc_1));
+                body.Instructions.Add(new Instruction(OpCodes.Callvirt, getChars));
+                body.Instructions.Add(new Instruction(OpCodes.Ldc_I4, 0x6969));
+                body.Instructions.Add(new Instruction(OpCodes.Xor));
+                body.Instructions.Add(new Instruction(OpCodes.Conv_U2));
+                body.Instructions.Add(new Instruction(OpCodes.Stloc_2));
+
+                body.Instructions.Add(new Instruction(OpCodes.Ldloca, 2));
+                body.Instructions.Add(new Instruction(OpCodes.Call, ctoString));
+                body.Instructions.Add(new Instruction(OpCodes.Callvirt, insert));
+                body.Instructions.Add(new Instruction(OpCodes.Pop));
+
+                body.Instructions.Add(new Instruction(OpCodes.Ldloc_1));
+                body.Instructions.Add(new Instruction(OpCodes.Ldc_I4_1));
+                body.Instructions.Add(new Instruction(OpCodes.Add));
+                body.Instructions.Add(new Instruction(OpCodes.Stloc_1));
+
+                body.Instructions.Add(new Instruction(OpCodes.Ldloc_1));
+                body.Instructions.Add(new Instruction(OpCodes.Ldarg_0));
+                body.Instructions.Add(new Instruction(OpCodes.Callvirt, sLen));
+                body.Instructions.Add(new Instruction(OpCodes.Clt));
+                body.Instructions.Add(new Instruction(OpCodes.Brtrue, new InstrIdx(0)));
+                
+                body.Instructions.Add(new Instruction(OpCodes.Ldloc_0));
+                //Not full
+
                 body.Instructions.Add(new Instruction(OpCodes.Ldarg_0));
                 body.Instructions.Add(new Instruction(OpCodes.Ret));
                 body.Instructions.ResolveIndexes();
