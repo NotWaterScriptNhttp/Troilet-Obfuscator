@@ -13,6 +13,5 @@ namespace TroiletProt_DotNet
 
             return t;
         }
-        public static MethodDef CreateMethod(string name, MethodSig sig) => new MethodDefUser(name, sig, MethodAttributes.Static | MethodAttributes.Public);
     }
 }

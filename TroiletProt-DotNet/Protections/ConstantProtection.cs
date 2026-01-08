@@ -60,18 +60,16 @@ namespace TroiletProt_DotNet.Protections
             s.Type = Globals.CreateType<ConstantProtection>(module);
 
             ICorLibTypes types = module.CorLibTypes;
-            MethodDef smeth = Globals.CreateMethod("UnprotectString", new MethodSig(CallingConvention.Default, 1, types.String, types.String));
+            MethodBuilder smeth = new MethodBuilder("UnprotectString", types.String, new TypeSig[] { types.String });
             {
-                CilBody body = smeth.Body = new CilBody();
-
                 IMethod getChars = module.ImportMethod<string>("get_Chars");
                 IMethod charToString = module.ImportMethod<char>("ToString", new Type[0]);
                 IMethod concat = module.ImportMethod<string>("Concat", new Type[] { typeof(string), typeof(string) });
                 IMethod getLength = module.ImportMethod<string>("get_Length");
 
-                body.Variables.Add(new Local(types.String)); // Result
-                body.Variables.Add(new Local(types.Int32)); // Index
-                body.Variables.Add(new Local(types.Char)); // CurrentChar
+                smeth.AddLocal(types.String); // Result
+                smeth.AddLocal(types.Int32); // Index
+                smeth.AddLocal(types.Char); // CurrentChar
 
                 // Set variables to default
                 body.Instructions.Add(OpCodes.Ldstr, ""); // 0
