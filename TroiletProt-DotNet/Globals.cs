@@ -1,10 +1,14 @@
-﻿using dnlib.DotNet;
+﻿using System;
+
+using dnlib.DotNet;
 
 namespace TroiletProt_DotNet
 {
     public static class Globals
     {
         public const string ProtectionNS = "TProtections";
+
+        public static Random Rand = new Random();
 
         public static TypeDef CreateType<T>(ModuleDef mdl)
         {

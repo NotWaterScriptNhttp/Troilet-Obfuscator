@@ -13,11 +13,16 @@ namespace TroiletProt_DotNet.Protections
     {
         public class ConstantSession : ProtectionSession
         {
-            public ConstantSession(ModuleDef mdl) => Module = mdl;
-
             internal TypeDef? Type = null;
             internal uint Val = 0;
+            internal ushort Key = 0;
             internal Dictionary<string, string> Cache = new Dictionary<string, string>();
+
+            public ConstantSession(ModuleDef mdl)
+            {
+                Module = mdl;
+                Key = (ushort)Globals.Rand.Next(0, ushort.MaxValue);
+            }
 
             internal string ProtectString(string s)
             {
@@ -26,20 +31,19 @@ namespace TroiletProt_DotNet.Protections
 
                 string res = "";
                 foreach (char c in s)
-                    res += (char)(c ^ (char)0x6969);
+                    res += (char)(c ^ (char)Key);
 
                 Cache[s] = res;
                 return res;
             }
-            private static string UnprotectString(string s)
+            /*private static string UnprotectString(string s)
             {
                 string res = "";
                 foreach (char c in s)
-                    res += (char)(c ^ (char)0x6969);
+                    res += (char)(c ^ (char)Key);
 
                 return res;
-            }
-
+            }*/
 
             public override ProtectionStatistics EndSession()
             {
@@ -60,64 +64,62 @@ namespace TroiletProt_DotNet.Protections
             s.Type = Globals.CreateType<ConstantProtection>(module);
 
             ICorLibTypes types = module.CorLibTypes;
-            MethodBuilder smeth = new MethodBuilder("UnprotectString", types.String, new TypeSig[] { types.String });
+            MethodBuilder smethB = new MethodBuilder("UnprotectString", types.String, new TypeSig[] { types.String });
             {
                 IMethod getChars = module.ImportMethod<string>("get_Chars");
                 IMethod charToString = module.ImportMethod<char>("ToString", new Type[0]);
                 IMethod concat = module.ImportMethod<string>("Concat", new Type[] { typeof(string), typeof(string) });
                 IMethod getLength = module.ImportMethod<string>("get_Length");
 
-                smeth.AddLocal(types.String); // Result
-                smeth.AddLocal(types.Int32); // Index
-                smeth.AddLocal(types.Char); // CurrentChar
+                smethB.AddLocal(types.String); // Result
+                smethB.AddLocal(types.Int32); // Index
+                smethB.AddLocal(types.Char); // CurrentChar
 
                 // Set variables to default
-                body.Instructions.Add(OpCodes.Ldstr, ""); // 0
-                body.Instructions.Add(OpCodes.Stloc_0); // 1
-                body.Instructions.Add(OpCodes.Ldc_I4, 0); // 2
-                body.Instructions.Add(OpCodes.Stloc_1); // 3
+                smethB.AddInst(OpCodes.Ldstr, ""); // 0
+                smethB.AddRefLocal(OpCodes.Stloc, 0); // 1
+                smethB.AddInst(OpCodes.Ldc_I4, 0); // 2
+                smethB.AddRefLocal(OpCodes.Stloc, 1); // 3
 
                 // Check length
-                body.Instructions.Add(OpCodes.Br, new InstrIdx(21)); // 4
+                smethB.AddRefInst(OpCodes.Br, "IL_CHECK"); // 4
 
                 // Get current char
-                body.Instructions.Add(OpCodes.Ldarg_0); // 5
-                body.Instructions.Add(OpCodes.Ldloc_1); // 6
-                body.Instructions.Add(OpCodes.Callvirt, getChars); // 7
+                smethB.AddRefArg("IL_CHAR", OpCodes.Ldarg, 0); // 5
+                smethB.AddRefLocal(OpCodes.Ldloc, 1); // 6
+                smethB.AddInst(OpCodes.Callvirt, getChars); // 7
 
                 // Xor the current char
-                body.Instructions.Add(OpCodes.Ldc_I4, 0x6969); // 8
-                body.Instructions.Add(OpCodes.Xor); // 9
-                body.Instructions.Add(OpCodes.Conv_U2); // 10
-                body.Instructions.Add(OpCodes.Stloc_2); // 11
+                smethB.AddInst(OpCodes.Ldc_I4, (int)s.Key); // 8
+                smethB.AddInst(OpCodes.Xor); // 9
+                smethB.AddInst(OpCodes.Conv_U2); // 10
+                smethB.AddRefLocal(OpCodes.Stloc, 2); // 11
 
                 // Concat current char with result
-                body.Instructions.Add(OpCodes.Ldloc_0); // 12 str1
-                body.Instructions.Add(OpCodes.Ldloca, new LocalIdx(2)); // 13
-                body.Instructions.Add(OpCodes.Callvirt, charToString); // 14 str2
-                body.Instructions.Add(OpCodes.Call, concat); // 15
-                body.Instructions.Add(OpCodes.Stloc_0); // 16
+                smethB.AddRefLocal(OpCodes.Ldloc, 0); // 12 str1
+                smethB.AddRefLocal(OpCodes.Ldloca, 2); // 13
+                smethB.AddInst(OpCodes.Callvirt, charToString); // 14 str2
+                smethB.AddInst(OpCodes.Call, concat); // 15
+                smethB.AddRefLocal(OpCodes.Stloc, 0); // 16
 
                 // Increment index
-                body.Instructions.Add(OpCodes.Ldloc_1); // 17
-                body.Instructions.Add(OpCodes.Ldc_I4, 1); // 18
-                body.Instructions.Add(OpCodes.Add); // 19
-                body.Instructions.Add(OpCodes.Stloc_1); // 20
+                smethB.AddRefLocal(OpCodes.Ldloc, 1); // 17
+                smethB.AddInst(OpCodes.Ldc_I4, 1); // 18
+                smethB.AddInst(OpCodes.Add); // 19
+                smethB.AddRefLocal(OpCodes.Stloc, 1); // 20
 
                 // Check index with length
-                body.Instructions.Add(OpCodes.Ldloc_1); // 21
-                body.Instructions.Add(OpCodes.Ldarg_0); // 22
-                body.Instructions.Add(OpCodes.Callvirt, getLength); // 23
-                body.Instructions.Add(OpCodes.Blt, new InstrIdx(5)); // 24
+                smethB.AddRefLocal("IL_CHECK", OpCodes.Ldloc, 1); // 21
+                smethB.AddRefArg(OpCodes.Ldarg, 0); // 22
+                smethB.AddInst(OpCodes.Callvirt, getLength); // 23
+                smethB.AddRefInst(OpCodes.Blt, "IL_CHAR"); // 24
 
                 // Return result
-                body.Instructions.Add(OpCodes.Ldloc_0); // 25
-                body.Instructions.Add(OpCodes.Ret); // 26
-                body.Instructions.ResolveIndexes(body.Variables);
-                body.Instructions.OptimizeMacros();
-                body.Instructions.OptimizeBranches();
+                smethB.AddRefLocal(OpCodes.Ldloc, 0); // 25
+                smethB.AddInst(OpCodes.Ret); // 26
             }
 
+            MethodDef smeth = smethB.Get();
             s.Type.Methods.Add(smeth);
 
             void CheckType(TypeDef type, int depth = 0)
