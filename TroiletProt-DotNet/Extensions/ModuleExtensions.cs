@@ -23,7 +23,17 @@ namespace TroiletProt_DotNet.Extensions
             return self.Import(m);
         }
         public static IMethod ImportMethod<T>(this ModuleDef self, string mName, Type[]? types = null) => self.ImportMethod(typeof(T), mName, types);
-        public static IMethod ImportCtor<T>(this ModuleDef self, Type[] types) => self.Import(typeof(T).GetConstructor(AllFlags, types));
+        
+        public static IMethod ImportCtor(this ModuleDef self, Type type, Type[]? types = null)
+        {
+            MethodBase? m;
+            if (types != null)
+                m = type.GetConstructor(types);
+            else m = type.GetConstructor(new Type[0]);
+
+            return self.Import(m);
+        }
+        public static IMethod ImportCtor<T>(this ModuleDef self, Type[]? types = null) => self.ImportCtor(typeof(T), types);
 
         public static MemberRef ImportField<T>(this ModuleDef self, string fName) => self.Import(typeof(T).GetField(fName, AllFlags));
 

@@ -30,10 +30,37 @@ namespace TroiletProt_DotNet
                 Value = name; 
             }
         }
+        private class EHandler
+        {
+            public string TryStart = string.Empty;
+            public string TryEnd = string.Empty;
+            public string CatchStart = string.Empty;
+            public string CatchEnd = string.Empty;
+            public string? FilterStart = null;
+            public ExceptionHandlerType Type = ExceptionHandlerType.Catch;
+        }
 
         private MethodDef _Meth;
         private bool _Changed = false;
         private Dictionary<string, Instruction> _NamedInstrs = new Dictionary<string, Instruction>();
+        private List<EHandler> _EHandlers = new List<EHandler>();
+
+        private Instruction? ResolveInst(string? name, bool @throw = true)
+        {
+            if (name != null && _NamedInstrs.TryGetValue(name, out Instruction? i))
+                return i;
+
+            if (@throw)
+                throw new IndexOutOfRangeException("No named instruction!");
+            return null;
+        }
+        private T CheckNull<T>(T? obj)
+        {
+            if (obj == null)
+                throw new NullReferenceException();
+
+            return obj;
+        }
 
         public MethodBuilder(MethodDef m)
         {
@@ -59,6 +86,21 @@ namespace TroiletProt_DotNet
             _Meth.Body.Variables.Add(loc = new Local(sig));
             _Changed = true;
             return loc;
+        }
+
+        public void AddEH(string tsName, string teName, string csName, string ceName, ExceptionHandlerType type, string? sfName = null)
+        {
+            _EHandlers.Add(new EHandler()
+            {
+                TryStart = tsName,
+                TryEnd = teName,
+                CatchStart = csName,
+                CatchEnd = ceName,
+                FilterStart = sfName,
+                Type = type
+            });
+
+            _Changed = true;
         }
 
         public void AddInst(OpCode op, object? operand = null)
@@ -111,23 +153,23 @@ namespace TroiletProt_DotNet
                             if (idx >= lCnt)
                                 throw new IndexOutOfRangeException();
 
-                            i.Operand = _Meth.Body.Variables[idx];
+                            i.Operand = CheckNull(_Meth.Body.Variables[idx]);
                         }
                         break;
 
                     case RefType.Instruction:
                         {
                             if (ir.Value is string)
-                                if (_NamedInstrs.TryGetValue((string)ir.Value, out var namedInstr))
-                                    i.Operand = namedInstr;
-                                else throw new ArgumentException("No named instruction!");
+                            {
+                                i.Operand = CheckNull(ResolveInst((string)ir.Value));
+                            }
                             else if (ir.Value is int)
                             {
                                 int idx = (int)ir.Value;
                                 if (idx >= iCnt)
                                     throw new IndexOutOfRangeException();
 
-                                i.Operand = _Meth.Body.Instructions[idx];
+                                i.Operand = CheckNull(_Meth.Body.Instructions[idx]);
                             }
                             else throw new ApplicationException("Invalid value type!");
                         }
@@ -142,14 +184,28 @@ namespace TroiletProt_DotNet
                             if (idx >= aCnt)
                                 throw new IndexOutOfRangeException();
 
-                            i.Operand = _Meth.Parameters[idx];
+                            i.Operand = CheckNull(_Meth.Parameters[idx]);
                         }
                         break;
                 }
             }
-
+            
             _Meth.Body.OptimizeMacros();
             _Meth.Body.OptimizeBranches();
+
+            foreach (EHandler h in _EHandlers)
+            {
+                ExceptionHandler eh = new ExceptionHandler(h.Type);
+                eh.TryStart = ResolveInst(h.TryStart);
+                eh.TryEnd = ResolveInst(h.TryEnd);
+                eh.HandlerStart = ResolveInst(h.CatchStart);
+                eh.HandlerEnd = ResolveInst(h.CatchEnd);
+                eh.FilterStart = ResolveInst(h.FilterStart, false);
+
+                _Meth.Body.ExceptionHandlers.Add(eh);
+            }
+            _EHandlers.Clear();
+
             _Changed = false;
         }
 

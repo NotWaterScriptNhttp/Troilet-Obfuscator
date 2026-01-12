@@ -71,6 +71,7 @@ namespace TroiletProt_DotNet.Protections
             ConstantSession s = new ConstantSession(module);
             s.Type = Globals.CreateType<ConstantProtection>(module);
 
+            Type cacheType = typeof(Dictionary<string, string>);
             TypeSig cacheSig = module.ImportAsSig<Dictionary<string, string>>();
             FieldDef lockFld = s.Type.AddField("_lock", types.Object);
             FieldDef cacheFld = s.Type.AddField("_cache", cacheSig);
@@ -80,7 +81,7 @@ namespace TroiletProt_DotNet.Protections
             // .cctor
             {
                 IMethod objCtor = module.ImportCtor<object>(new Type[0]);
-                IMethod cacheCtor = module.ImportCtor<Dictionary<string, string>>(new Type[0]);
+                IMethod cacheCtor = module.ImportCtor(cacheType, new Type[0]);
 
                 cctorB.AddInst(OpCodes.Newobj, objCtor);
                 cctorB.AddInst(OpCodes.Stsfld, lockFld);
@@ -90,8 +91,12 @@ namespace TroiletProt_DotNet.Protections
             }
             // UnprotectString
             {
-                IMethod monEnter = module.ImportMethod(typeof(Monitor), "Enter", new Type[] { typeof(object), typeof(bool) });
+                IMethod monEnter = module.ImportMethod(typeof(Monitor), "Enter", new Type[] { typeof(object), typeof(bool).MakeByRefType() });
                 IMethod monExit = module.ImportMethod(typeof(Monitor), "Exit", new Type[] { typeof(object) });
+
+                IMethod cacheTryGet = module.ImportMethod(cacheType, "TryGetValue");
+                IMethod cacheSet = module.ImportMethod(cacheType, "set_Item");
+
                 IMethod getChars = module.ImportMethod<string>("get_Chars");
                 IMethod charToString = module.ImportMethod<char>("ToString", new Type[0]);
                 IMethod concat = module.ImportMethod<string>("Concat", new Type[] { typeof(string), typeof(string) });
@@ -102,19 +107,44 @@ namespace TroiletProt_DotNet.Protections
                 unprotectStrB.AddLocal(types.Char); // CurrentChar
                 unprotectStrB.AddLocal(types.Boolean); // Temp
 
-                // Enter monitor
+                unprotectStrB.AddEH(
+                    "IL_EH1TS", "IL_EH1CS",
+                    "IL_EH1CS", "IL_EXITCACHE",
+                    ExceptionHandlerType.Finally
+                );
+                unprotectStrB.AddEH(
+                    "IL_EH2TS", "IL_EH2CS",
+                    "IL_EH2CS", "IL_EXIT",
+                    ExceptionHandlerType.Finally
+                );
+
+                // Enter cache monitor
                 unprotectStrB.AddInst(OpCodes.Ldc_I4, 0);
                 unprotectStrB.AddRefLocal(OpCodes.Stloc, 3);
-                unprotectStrB.AddInst(OpCodes.Ldsfld, lockFld);
+                unprotectStrB.AddInst("IL_EH1TS", OpCodes.Ldsfld, lockFld);
                 unprotectStrB.AddRefLocal(OpCodes.Ldloca, 3);
                 unprotectStrB.AddInst(OpCodes.Call, monEnter);
 
-                // Exit monitor
+                // Check cache, if found exit
+                unprotectStrB.AddInst(OpCodes.Ldsfld, cacheFld);
+                unprotectStrB.AddRefArg(OpCodes.Ldarg, 0);
+                unprotectStrB.AddRefLocal(OpCodes.Ldloca, 0);
+                unprotectStrB.AddInst(OpCodes.Callvirt, cacheTryGet);
+                unprotectStrB.AddRefInst(OpCodes.Brtrue, "IL_CACHERET");
+
+                // Leave logic
+                unprotectStrB.AddRefInst(OpCodes.Leave, "IL_EXITCACHE");
+                unprotectStrB.AddRefInst("IL_CACHERET", OpCodes.Leave, "IL_EXIT");
+
+                // Exit cache monitor (finally statement)
+                unprotectStrB.AddRefLocal("IL_EH1CS", OpCodes.Ldloc, 3);
+                unprotectStrB.AddRefInst(OpCodes.Brfalse, "IL_ENDFINALLY1");
                 unprotectStrB.AddInst(OpCodes.Ldsfld, lockFld);
                 unprotectStrB.AddInst(OpCodes.Call, monExit);
+                unprotectStrB.AddInst("IL_ENDFINALLY1", OpCodes.Endfinally);
 
                 // Set variables to default
-                unprotectStrB.AddInst(OpCodes.Ldstr, ""); // 0
+                unprotectStrB.AddInst("IL_EXITCACHE", OpCodes.Ldstr, ""); // 0
                 unprotectStrB.AddRefLocal(OpCodes.Stloc, 0); // 1
                 unprotectStrB.AddInst(OpCodes.Ldc_I4, 0); // 2
                 unprotectStrB.AddRefLocal(OpCodes.Stloc, 1); // 3
@@ -152,8 +182,29 @@ namespace TroiletProt_DotNet.Protections
                 unprotectStrB.AddInst(OpCodes.Callvirt, getLength); // 23
                 unprotectStrB.AddRefInst(OpCodes.Blt, "IL_CHAR"); // 24
 
+                // Enter cache monitor
+                unprotectStrB.AddInst(OpCodes.Ldc_I4, 0);
+                unprotectStrB.AddRefLocal(OpCodes.Stloc, 3);
+                unprotectStrB.AddInst("IL_EH2TS", OpCodes.Ldsfld, lockFld);
+                unprotectStrB.AddRefLocal(OpCodes.Ldloca, 3);
+                unprotectStrB.AddInst(OpCodes.Call, monEnter);
+
+                // Add cache value
+                unprotectStrB.AddInst(OpCodes.Ldsfld, cacheFld);
+                unprotectStrB.AddRefArg(OpCodes.Ldarg, 0);
+                unprotectStrB.AddRefLocal(OpCodes.Ldloc, 0);
+                unprotectStrB.AddInst(OpCodes.Callvirt, cacheSet);
+                unprotectStrB.AddRefInst(OpCodes.Leave, "IL_EXIT");
+
+                // Exit cache monitor
+                unprotectStrB.AddRefLocal("IL_EH2CS", OpCodes.Ldloc, 3);
+                unprotectStrB.AddRefInst(OpCodes.Brfalse, "IL_ENDFINALLY2");
+                unprotectStrB.AddInst(OpCodes.Ldsfld, lockFld);
+                unprotectStrB.AddInst(OpCodes.Call, monExit);
+                unprotectStrB.AddInst("IL_ENDFINALLY2", OpCodes.Endfinally);
+
                 // Return result
-                unprotectStrB.AddRefLocal(OpCodes.Ldloc, 0); // 25
+                unprotectStrB.AddRefLocal("IL_EXIT", OpCodes.Ldloc, 0); // 25
                 unprotectStrB.AddInst(OpCodes.Ret); // 26
             }
 
