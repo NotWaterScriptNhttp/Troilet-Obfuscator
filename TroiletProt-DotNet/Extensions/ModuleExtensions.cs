@@ -13,16 +13,16 @@ namespace TroiletProt_DotNet.Extensions
         public static TypeSig ImportAsSig<T>(this ModuleDef self) => self.ImportAsTypeSig(typeof(T));
         public static ITypeDefOrRef Import<T>(this ModuleDef self) => self.Import(typeof(T));
 
-        public static IMethod ImportMethod<T>(this ModuleDef self, string mName, Type[]? types = null)
+        public static IMethod ImportMethod(this ModuleDef self, Type type, string mName, Type[]? types = null)
         {
-            Type t = typeof(T);
             MethodInfo? m;
             if (types != null)
-                m = t.GetMethod(mName, AllFlags, types);
-            else m = t.GetMethod(mName, AllFlags);
+                m = type.GetMethod(mName, AllFlags, types);
+            else m = type.GetMethod(mName, AllFlags);
 
             return self.Import(m);
         }
+        public static IMethod ImportMethod<T>(this ModuleDef self, string mName, Type[]? types = null) => self.ImportMethod(typeof(T), mName, types);
         public static IMethod ImportCtor<T>(this ModuleDef self, Type[] types) => self.Import(typeof(T).GetConstructor(AllFlags, types));
 
         public static MemberRef ImportField<T>(this ModuleDef self, string fName) => self.Import(typeof(T).GetField(fName, AllFlags));

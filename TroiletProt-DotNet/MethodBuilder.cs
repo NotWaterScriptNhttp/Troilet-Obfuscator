@@ -42,14 +42,14 @@ namespace TroiletProt_DotNet
 
             _Meth = m;
         }
-        public MethodBuilder(string name, TypeSig ret, TypeSig[]? args = null, MethodAttributes attrs = MethodAttributes.Static | MethodAttributes.Public)
+        public MethodBuilder(string name, TypeSig ret, TypeSig[]? args = null, MethodAttributes attrs = 0)
         {
             MethodSig sig;
             if (args != null)
                 sig = new MethodSig(CallingConvention.Default, (uint)args.Length, ret, args);
             else sig = new MethodSig(CallingConvention.Default, 0, ret);
 
-            _Meth = new MethodDefUser(name, sig, attrs);
+            _Meth = new MethodDefUser(name, sig, MethodAttributes.Static | MethodAttributes.Public | attrs);
             _Meth.Body = new CilBody();
         }
 
