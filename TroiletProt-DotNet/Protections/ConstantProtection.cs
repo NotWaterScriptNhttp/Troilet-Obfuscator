@@ -13,9 +13,6 @@ namespace TroiletProt_DotNet.Protections
     {
         public class ConstantSession : ProtectionSession
         {
-            static object _lock = new object();
-            static Dictionary<string, string> _SCache = new Dictionary<string, string>();
-
             internal TypeDef? Type = null;
             internal uint Val = 0;
             internal ushort Key = 0;
@@ -39,18 +36,6 @@ namespace TroiletProt_DotNet.Protections
                 Cache[s] = res;
                 return res;
             }
-            private static string UnprotectString(string s)
-            {
-                lock(_lock)
-                {
-                    if (_SCache.TryGetValue(s, out var res))
-                        return res;
-
-                    _SCache[s] = "";
-                }
-
-                return s;
-            }
 
             public override ProtectionStatistics EndSession()
             {
@@ -71,8 +56,8 @@ namespace TroiletProt_DotNet.Protections
             ConstantSession s = new ConstantSession(module);
             s.Type = Globals.CreateType<ConstantProtection>(module);
 
-            Type cacheType = typeof(Dictionary<string, string>);
-            TypeSig cacheSig = module.ImportAsSig<Dictionary<string, string>>();
+            Type cacheType = typeof(Dictionary<object, object>);
+            TypeSig cacheSig = module.ImportAsTypeSig(cacheType);
             FieldDef lockFld = s.Type.AddField("_lock", types.Object);
             FieldDef cacheFld = s.Type.AddField("_cache", cacheSig);
 

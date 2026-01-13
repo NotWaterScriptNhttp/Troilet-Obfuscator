@@ -15,7 +15,7 @@ namespace TroiletProt_Lua
         public override PluginConfigBase? Config { get; protected set; }
 
         string IObfuscatorPlugin.Platform { get; set; } = "Lua";
-        string[] IObfuscatorPlugin.PlatformExt { get; set; } = { "lua" };
+        string[] IObfuscatorPlugin.PlatformExt { get; set; } = { "lua", "out" };
         string[]? IObfuscatorPlugin.ShortNames { get; set; } = { "lua" };
 
         public Stream? LoadFile(byte[] fileData)

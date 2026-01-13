@@ -17,7 +17,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\TroiletCore\TroiletCore.csproj" />
+    <ProjectReference Include="..\TroiletCore\TroiletCore.csproj">
+      <Private>False</Private>
+    </ProjectReference>
   </ItemGroup>
 
   <ItemGroup>
