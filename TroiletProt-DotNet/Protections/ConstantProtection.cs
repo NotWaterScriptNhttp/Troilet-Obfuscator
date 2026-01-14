@@ -18,9 +18,8 @@ namespace TroiletProt_DotNet.Protections
             internal ushort Key = 0;
             internal Dictionary<string, string> Cache = new Dictionary<string, string>();
 
-            public ConstantSession(ModuleDef mdl)
+            public ConstantSession(ModuleDef mdl) : base(mdl)
             {
-                Module = mdl;
                 Key = (ushort)Globals.Rand.Next(0, ushort.MaxValue);
             }
 
@@ -199,7 +198,7 @@ namespace TroiletProt_DotNet.Protections
 
             void CheckType(TypeDef type, int depth = 0)
             {
-                if (depth >= 10)
+                if (depth >= MAX_DEPTH)
                     return;
 
                 foreach (TypeDef t in type.NestedTypes)

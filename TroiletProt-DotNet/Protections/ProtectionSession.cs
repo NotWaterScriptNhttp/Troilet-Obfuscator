@@ -14,6 +14,8 @@ namespace TroiletProt_DotNet.Protections
     {
         public ModuleDef Module { get; protected set; }  
 
+        public ProtectionSession(ModuleDef module) => Module = module;
+
         public abstract ProtectionStatistics EndSession();
     }
 }

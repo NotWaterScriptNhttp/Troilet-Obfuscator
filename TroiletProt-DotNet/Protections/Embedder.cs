@@ -12,6 +12,8 @@ namespace TroiletProt_DotNet.Protections
     {
         public class EmbedderSession : ProtectionSession
         {
+            public EmbedderSession(ModuleDef module) : base(module) {}
+
             public override ProtectionStatistics EndSession()
             {
                 return new ProtectionStatistics();
@@ -20,7 +22,7 @@ namespace TroiletProt_DotNet.Protections
 
         public override ProtectionSession StartSession(ModuleDef module)
         {
-            EmbedderSession s = new EmbedderSession();
+            EmbedderSession s = new EmbedderSession(module);
 
             return s;
         }

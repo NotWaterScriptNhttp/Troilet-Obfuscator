@@ -13,7 +13,7 @@ namespace TroiletProt_DotNet
     public class Plugin : PluginBase, IObfuscatorPlugin
     {
         private AssemblyDef? LoadedFile = null;
-        private List<ProtectionBase> Protections;
+        private Dictionary<int, List<ProtectionBase>> Protections;
 
         public override string Name => ".NET Obfuscator";
         public override string Description => "Troilet's .NET obfuscator";
@@ -47,16 +47,23 @@ namespace TroiletProt_DotNet
             AssemblyDef asm = AssemblyDef.Load(file);
             foreach (ModuleDef mdl in asm.Modules)
             {
-                Dictionary<ProtectionBase, ProtectionSession> sessions = new();
-                foreach (ProtectionBase p in Protections)
-                    sessions.Add(p, p.StartSession(mdl));
+                foreach (KeyValuePair<int, List<ProtectionBase>> prots in Protections)
+                {
+                    Console.WriteLine("Running protection pass #{0}", prots.Key);
 
-                foreach (TypeDef t in mdl.Types)
+                    Dictionary<ProtectionBase, ProtectionSession> sessions = new();
+                    foreach (ProtectionBase p in prots.Value)
+                        sessions.Add(p, p.StartSession(mdl));
+
+                    foreach (TypeDef t in mdl.Types)
+                        foreach (KeyValuePair<ProtectionBase, ProtectionSession> kvp in sessions)
+                            kvp.Key.OnType(kvp.Value, t);
+
                     foreach (KeyValuePair<ProtectionBase, ProtectionSession> kvp in sessions)
-                        kvp.Key.OnType(kvp.Value, t);
+                        Console.WriteLine(kvp.Value.EndSession());
+                }
 
-                foreach (KeyValuePair<ProtectionBase, ProtectionSession> kvp in sessions)
-                    Console.WriteLine(kvp.Value.EndSession());
+                Console.WriteLine("Finished all passes!");
             }
 
             asm.Write(output);
@@ -67,8 +74,17 @@ namespace TroiletProt_DotNet
         {
             Protections = new()
             {
-                new Embedder(),
-                new ConstantProtection()
+                { 0, new List<ProtectionBase>()
+                    {
+                        new Embedder(),
+                        new ConstantProtection(),
+                    } 
+                },
+                { 1, new List<ProtectionBase>()
+                    {
+                        new Renamer()
+                    } 
+                }
             };
         }
     }

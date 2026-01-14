@@ -17,5 +17,14 @@ namespace TroiletProt_DotNet
 
             return t;
         }
+
+        public static string GetRandomString(int min = 8, int max = 16)
+        {
+            int len = Rand.Next(min, max);
+            byte[] data = new byte[len];
+            Rand.NextBytes(data);
+
+            return Convert.ToBase64String(data).Replace('+', '_');
+        }
     }
 }
