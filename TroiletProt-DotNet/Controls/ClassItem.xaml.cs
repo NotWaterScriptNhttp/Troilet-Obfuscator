@@ -55,6 +55,9 @@ namespace TroiletProt_DotNet.Controls
 
         private void itemname_MouseDown(object sender, MouseButtonEventArgs e)
         {
+            if (e.LeftButton != MouseButtonState.Pressed)
+                return;
+
             IsClassRedacted = !IsClassRedacted;
             if (IsClassRedacted)
                 itemname.TextDecorations = TextDecorations.Strikethrough;

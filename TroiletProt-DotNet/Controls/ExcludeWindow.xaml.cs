@@ -52,7 +52,7 @@ namespace TroiletProt_DotNet.Controls
             InitializeComponent();
 
             wndname.Content = asm.Name;
-            wndclosebtn.MakeButton((s, e) => Close());
+            wndclosebtn.MakeButton((s, e) => Hide());
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)

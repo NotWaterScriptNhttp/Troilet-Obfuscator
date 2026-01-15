@@ -26,8 +26,12 @@ namespace TroiletProt_DotNet
         string[]? IObfuscatorPlugin.ShortNames { get; set; } = { "dotnet", "dn" };
 
         public Stream? LoadFile(byte[] data)
-        {
-            ExcludeWindow.Instance = null;
+        {            
+            if (ExcludeWindow.Instance != null)
+            {
+                ExcludeWindow.Instance.Close();
+                ExcludeWindow.Instance = null;
+            }
 
             try
             {     
