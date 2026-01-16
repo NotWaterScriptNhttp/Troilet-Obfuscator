@@ -20,7 +20,7 @@ namespace TroiletProt_DotNet.Controls
     /// </summary>
     public partial class ClassItem : ExclusionItemBase
     {
-        public bool IsClassRedacted { get; private set; }
+        public bool IsClassRedacted { get; set; }
 
         public ClassItem(ImageSource img, string name) => Setup(img, name);
         public ClassItem(TreeViewItem? parent, ImageSource img, string name) => Setup(parent, img, name);
