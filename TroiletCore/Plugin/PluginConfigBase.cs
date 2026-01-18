@@ -100,6 +100,26 @@ namespace TroiletCore.Plugin
 
             return defValue;
         }
+        public bool GetValueBool(string section, string setting, bool defValue = false)
+        {
+            if (!_Sections.TryGetValue(section, out var sec))
+                throw new ApplicationException($"Section '{section}' does not exist!");
+
+            if (!sec.Settings.TryGetValue(setting, out var set))
+                return defValue;
+
+            switch (set.Type)
+            {
+                case PluginSettingType.Toggle:
+                    return (set as ISettingValue<bool>).Value;
+                case PluginSettingType.Text:
+                    return !string.IsNullOrEmpty((set as ISettingValue<string>).Value);
+                case PluginSettingType.Combo:
+                    return (set as ISettingValue<object?>).Value != null;
+            }
+
+            return defValue;
+        }
         public object? GetValue(string section, string setting, object? defValue = null)
         {
             if (!_Sections.TryGetValue(section, out var sec))
