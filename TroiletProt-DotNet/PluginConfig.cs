@@ -1,14 +1,18 @@
 ﻿using System;
-using System.Runtime.CompilerServices;
 using System.Windows;
+using System.Runtime.CompilerServices;
+
 using Newtonsoft.Json;
 
 using TroiletCore.Plugin;
+using TroiletProt_DotNet.Enums;
 using TroiletProt_DotNet.Controls;
+using TroiletProt_DotNet.Attributes;
 
 namespace TroiletProt_DotNet
 {
     [JsonObject(MemberSerialization.OptOut)]
+    [ProtectionLevel(ProtectionLevel.Name)]
     public class Exclusion
     {
         public string Type = string.Empty;
@@ -27,8 +31,10 @@ namespace TroiletProt_DotNet
     }
 
     [JsonObject(MemberSerialization = MemberSerialization.OptIn)]
+    [ProtectionLevel(ProtectionLevel.Name)]
     public class PluginConfig : PluginConfigBase
     {
+        [ProtectionLevel(ProtectionLevel.Full, false)]
         public static PluginConfig? Instance { get; private set; } = null;
 
         [JsonProperty("Exclusions")]
@@ -39,7 +45,7 @@ namespace TroiletProt_DotNet
             Instance = this;
 
             AddSection("Protections")
-                .AddToggle("embed_prot", "Protect Embeds", false)
+                .AddToggle("embed_prot", "Protect Embeds", true)
                 .AddToggle("const_prot", "Protect Constants", true);
 
             AddSection("Misc")
