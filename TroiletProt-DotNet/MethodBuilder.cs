@@ -4,16 +4,21 @@ using System.Collections.Generic;
 using dnlib.DotNet;
 using dnlib.DotNet.Emit;
 
+using TroiletProt_DotNet.Attributes;
+
 namespace TroiletProt_DotNet
 {
-    internal class MethodBuilder
+    [ProtectionLevel(Enums.ProtectionLevel.Name)]
+    public class MethodBuilder
     {
+        [ProtectionLevel(Enums.ProtectionLevel.Full, false)]
         private enum RefType : byte
         {
             Instruction,
             Local,
             Arg
         }
+        [ProtectionLevel(Enums.ProtectionLevel.Full, false)]
         private struct IdxRef
         {
             public RefType Type;
@@ -30,6 +35,7 @@ namespace TroiletProt_DotNet
                 Value = name; 
             }
         }
+        [ProtectionLevel(Enums.ProtectionLevel.Full, false)]
         private class EHandler
         {
             public string TryStart = string.Empty;
@@ -40,11 +46,16 @@ namespace TroiletProt_DotNet
             public ExceptionHandlerType Type = ExceptionHandlerType.Catch;
         }
 
+        [ProtectionLevel(Enums.ProtectionLevel.Full, false)]
         private MethodDef _Meth;
+        [ProtectionLevel(Enums.ProtectionLevel.Full, false)]
         private bool _Changed = false;
+        [ProtectionLevel(Enums.ProtectionLevel.Full, false)]
         private Dictionary<string, Instruction> _NamedInstrs = new Dictionary<string, Instruction>();
+        [ProtectionLevel(Enums.ProtectionLevel.Full, false)]
         private List<EHandler> _EHandlers = new List<EHandler>();
 
+        [ProtectionLevel(Enums.ProtectionLevel.Full, false)]
         private Instruction? ResolveInst(string? name, bool @throw = true)
         {
             if (name != null && _NamedInstrs.TryGetValue(name, out Instruction? i))
@@ -54,6 +65,7 @@ namespace TroiletProt_DotNet
                 throw new IndexOutOfRangeException("No named instruction!");
             return null;
         }
+        [ProtectionLevel(Enums.ProtectionLevel.Full, false)]
         private T CheckNull<T>(T? obj)
         {
             if (obj == null)
