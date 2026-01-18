@@ -54,7 +54,6 @@ namespace TroiletGUI
 
                 string file = FilePage.SelectedFile;
                 string output = System.IO.Path.Combine(outDir, System.IO.Path.GetFileName(file));
-                Console.WriteLine(output);
                 if (((IObfuscatorPlugin)obf).Obfuscate(file, output, FilePage.Dependencies))
                     Console.WriteLine("Successfully obfusctated: {0}", System.IO.Path.GetFileName(file));
                 else Console.WriteLine("Failed to obfusctate: {0}", System.IO.Path.GetFileName(file));
