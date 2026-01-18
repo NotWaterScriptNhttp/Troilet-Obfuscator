@@ -5,6 +5,7 @@ using System.Collections.Generic;
 
 using dnlib.DotNet;
 using dnlib.DotNet.Emit;
+
 using TroiletProt_DotNet.Extensions;
 
 namespace TroiletProt_DotNet.Protections
@@ -43,12 +44,17 @@ namespace TroiletProt_DotNet.Protections
 
                 return new ProtectionStatistics()
                 {
-                    Message = "Protected {0} constants",
+                    Message = "{0} constants",
                     Params = new object[] { Val }
                 };
             }
         }
 
+        private MethodDef? _upStr;
+
+        public override string Name { get; protected set; } = "ConstantProtection";
+
+        public override bool CanProtect() => PluginConfig.Instance.GetValueBool("Protections", "const_prot", true);
         public override ProtectionSession StartSession(ModuleDef module)
         {
             ICorLibTypes types = module.CorLibTypes;
@@ -192,53 +198,45 @@ namespace TroiletProt_DotNet.Protections
                 unprotectStrB.AddInst(OpCodes.Ret); // 26
             }
 
-            MethodDef unprotectStr = unprotectStrB.Get();
             s.Type.Methods.Add(cctorB.Get());
-            s.Type.Methods.Add(unprotectStr);
-
-            void CheckType(TypeDef type, int depth = 0)
-            {
-                if (depth >= MAX_DEPTH)
-                    return;
-
-                foreach (TypeDef t in type.NestedTypes)
-                    CheckType(t, depth + 1);
-
-                foreach (MethodDef m in type.Methods)
-                    if (m.HasBody)
-                    {
-                        CilBody body = m.Body;
-                        body.SimplifyMacros(m.Parameters);
-
-                        for (int i = 0; i < body.Instructions.Count; i++)
-                        {
-                            Instruction inst = body.Instructions[i];
-                            switch (inst.OpCode.Code)
-                            {
-                                case Code.Ldstr:
-                                    string str = (string)inst.Operand;
-
-                                    inst.Operand = s.ProtectString(str);
-                                    body.Instructions.Insert(++i, new Instruction(OpCodes.Call, unprotectStr));
-
-                                    s.Val++;
-                                    break;
-
-                                default:
-                                    continue;
-                            }
-                        }
-
-                        body.UpdateInstructionOffsets();
-                        body.OptimizeMacros();
-                        body.OptimizeBranches();
-                    }
-            }
-
-            foreach (TypeDef t in module.Types)
-                CheckType(t);
+            s.Type.Methods.Add(_upStr = unprotectStrB.Get());
 
             return s;
+        }
+
+        public override void OnType(ProtectionSession session, TypeDef type)
+        {
+            ConstantSession s = (ConstantSession)session;
+
+            foreach (MethodDef m in type.Methods)
+                if (m.HasBody)
+                {
+                    CilBody body = m.Body;
+                    body.SimplifyMacros(m.Parameters);
+
+                    for (int i = 0; i < body.Instructions.Count; i++)
+                    {
+                        Instruction inst = body.Instructions[i];
+                        switch (inst.OpCode.Code)
+                        {
+                            case Code.Ldstr:
+                                inst.Operand = s.ProtectString((string)inst.Operand);
+                                body.Instructions.Insert(++i, new Instruction(OpCodes.Call, _upStr));
+
+                                s.Val++;
+                                break;
+
+                            //TODO: Add Ldc_Ix, Ldc_Rx, etc...
+
+                            default:
+                                continue;
+                        }
+                    }
+
+                    body.UpdateInstructionOffsets();
+                    body.OptimizeMacros();
+                    body.OptimizeBranches();
+                }
         }
     }
 }

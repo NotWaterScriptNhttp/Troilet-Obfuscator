@@ -1,6 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 
 using dnlib.DotNet;
+
+using TroiletProt_DotNet.Enums;
+using TroiletProt_DotNet.Attributes;
 
 namespace TroiletProt_DotNet
 {
@@ -8,7 +12,10 @@ namespace TroiletProt_DotNet
     {
         public const string ProtectionNS = "TProtections";
 
+        private static Dictionary<object, ProtectionLevel> _LevelCache = new();
+
         public static Random Rand = new Random();
+        public static MethodBuilder CCtor;
 
         public static byte[] Key = new byte[0];
         public static byte[] Salt = new byte[0];
@@ -21,13 +28,35 @@ namespace TroiletProt_DotNet
             return t;
         }
 
-        public static string GetRandomString(int min = 8, int max = 16)
+        public static ProtectionLevel GetLevel(IHasCustomAttribute? attr, ProtectionLevel defValue = ProtectionLevel.Full)
         {
-            int len = Rand.Next(min, max);
-            byte[] data = new byte[len];
-            Rand.NextBytes(data);
+            if (attr == null || !attr.HasCustomAttributes)
+                return defValue;
+            if (_LevelCache.TryGetValue(attr, out ProtectionLevel pl))
+                return pl;
 
-            return Convert.ToBase64String(data).Replace('+', '_');
+            foreach (var a in attr.CustomAttributes)
+            {
+                if (ProtectionLevelAttribute.CheckAttribute(a))
+                {
+                    attr.CustomAttributes.Remove(a); // We can safely remove this attribute, as its already cached and doesn't need to be referenced
+
+                    ProtectionLevel p = (ProtectionLevel)a.ConstructorArguments[0].Value;
+                    if ((bool)a.ConstructorArguments[1].Value)
+                        p = ProtectionLevel.Full & ~p;
+
+                    return _LevelCache[attr] = p;
+                }
+            }
+
+            return defValue;
+        }
+
+        public static void Clear()
+        {
+            _LevelCache.Clear();
+            Array.Clear(Key);
+            Array.Clear(Salt);
         }
     }
 }

@@ -5,14 +5,20 @@ using dnlib.DotNet;
 
 using TroiletCore;
 using TroiletCore.Plugin;
+using TroiletProt_DotNet.Enums;
 using TroiletProt_DotNet.Controls;
+using TroiletProt_DotNet.Attributes;
+using TroiletProt_DotNet.Extensions;
 using TroiletProt_DotNet.Protections;
 
 namespace TroiletProt_DotNet
 {
+    [ProtectionLevel(ProtectionLevel.Name)]
     public class Plugin : PluginBase, IObfuscatorPlugin
     {
+        [ProtectionLevel(ProtectionLevel.Full, false)]
         private AssemblyDef? LoadedFile = null;
+        [ProtectionLevel(ProtectionLevel.Full, false)]
         private Dictionary<int, List<ProtectionBase>> Protections;
 
         public override string Name => ".NET Obfuscator";
@@ -25,7 +31,7 @@ namespace TroiletProt_DotNet
         string[] IObfuscatorPlugin.PlatformExt { get; set; } = { "exe", "dll" };
         string[]? IObfuscatorPlugin.ShortNames { get; set; } = { "dotnet", "dn" };
 
-        public Stream? LoadFile(byte[] data)
+        Stream? IObfuscatorPlugin.LoadFile(byte[] data)
         {            
             if (ExcludeWindow.Instance != null)
             {
@@ -42,35 +48,77 @@ namespace TroiletProt_DotNet
             }
             return Utils.GetResourceStream("ILIcon.png");
         }
-
-        public bool Obfuscate(string file, string output, string[]? deps = null)
+        bool IObfuscatorPlugin.Obfuscate(string file, string output, string[]? deps = null)
         {
+            [ProtectionLevel(ProtectionLevel.Full, false)]
+            static void CallOnType(Dictionary<ProtectionBase, ProtectionSession> sessions, TypeDef t, int depth = 0)
+            {
+                if (depth >= 10)
+                    return;
+
+                foreach (var nt in t.NestedTypes)
+                    CallOnType(sessions, nt, depth + 1);
+
+                foreach (KeyValuePair<ProtectionBase, ProtectionSession> kvp in sessions)
+                    kvp.Key.OnType(kvp.Value, t);
+            }
+
             if (LoadedFile == null)
                 return false;
 
-            AssemblyDef asm = AssemblyDef.Load(file);
-            foreach (ModuleDef mdl in asm.Modules)
+            Globals.Key = new byte[64];
+            Globals.Salt = new byte[8];
+            Globals.Rand.NextBytes(Globals.Key);
+            Globals.Rand.NextBytes(Globals.Salt);
+            Console.WriteLine("Key: {0}|{1}", Globals.Key.ToB64(), Globals.Salt.ToB64());
+
+            ModuleDefMD mdl = ModuleDefMD.Load(file);
+
+            // Add global cctor
+            Globals.CCtor = new MethodBuilder(".cctor", mdl.CorLibTypes.Void, attrs: MethodAttributes.SpecialName | MethodAttributes.RTSpecialName | MethodAttributes.HideBySig);
+            mdl.GlobalType.Methods.Add(Globals.CCtor.Get());
+
+            foreach (KeyValuePair<int, List<ProtectionBase>> prots in Protections)
             {
-                foreach (KeyValuePair<int, List<ProtectionBase>> prots in Protections)
+                Console.WriteLine("Running protection pass #{0}", prots.Key);
+
+                Dictionary<ProtectionBase, ProtectionSession> sessions = new();
+                foreach (ProtectionBase p in prots.Value)
                 {
-                    Console.WriteLine("Running protection pass #{0}", prots.Key);
+                    if (!p.CanProtect()) // Check if we can use this protection (Check if its enabled)
+                        continue;
 
-                    Dictionary<ProtectionBase, ProtectionSession> sessions = new();
-                    foreach (ProtectionBase p in prots.Value)
-                        sessions.Add(p, p.StartSession(mdl));
-
-                    foreach (TypeDef t in mdl.Types)
-                        foreach (KeyValuePair<ProtectionBase, ProtectionSession> kvp in sessions)
-                            kvp.Key.OnType(kvp.Value, t);
-
-                    foreach (KeyValuePair<ProtectionBase, ProtectionSession> kvp in sessions)
-                        Console.WriteLine(kvp.Value.EndSession());
+                    sessions.Add(p, p.StartSession(mdl));
                 }
 
-                Console.WriteLine("Finished all passes!");
+                foreach (TypeDef t in mdl.Types)
+                {
+                    // Very likely most protections won't need to inspect global type
+                    if (t == mdl.GlobalType)
+                    {
+                        foreach (KeyValuePair<ProtectionBase, ProtectionSession> kvp in sessions)
+                            kvp.Key.OnGlobalType(kvp.Value, t);
+
+                        continue;
+                    }
+
+                    CallOnType(sessions, t);
+                }
+
+                foreach (KeyValuePair<ProtectionBase, ProtectionSession> kvp in sessions)
+                    Console.WriteLine("[{0}]: {1}", kvp.Key.Name, kvp.Value.EndSession());
+
+                Console.WriteLine();
             }
 
-            asm.Write(output);
+            // End global cctor
+            Globals.CCtor.AddInst(dnlib.DotNet.Emit.OpCodes.Ret);
+            Globals.CCtor.Resolve();
+
+            Globals.Clear();
+            Console.WriteLine("Finished all passes for {0}", mdl.Name);
+
+            mdl.Write(output);
             return true;
         }
 
@@ -86,7 +134,8 @@ namespace TroiletProt_DotNet
                 },
                 { 1, new List<ProtectionBase>()
                     {
-                        new Renamer()
+                        new Renamer(),
+                        //TODO: Add type spoofer
                     } 
                 }
             };
