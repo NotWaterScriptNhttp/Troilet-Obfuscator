@@ -6,6 +6,8 @@ namespace TroiletCore
 {
     public static partial class Utils
     {
+        public const ushort SizeNum = 1000; // kB
+
         public static Stream? GetResourceStream(string name)
         {
             Assembly asm = Assembly.GetCallingAssembly();
@@ -48,6 +50,33 @@ namespace TroiletCore
             }
 
             return true;
+        }
+        public static string ToSize(long size)
+        {
+            if (size <= 0)
+                return "Empty";
+
+            byte idx = 0;
+            double val = size;
+            while (val > SizeNum && idx < 3)
+            {
+                val /= SizeNum;
+                idx++;
+            }
+
+            string sig = "bytes";
+            if (idx > 0)
+            {
+                if (idx == 1)
+                    sig = "kB";
+                else if (idx == 2)
+                    sig = "MB";
+                else if (idx == 3)
+                    sig = "GB";
+                else sig = "?";
+            }
+
+            return $"{Math.Round(val, 2)} {sig}";
         }
     }
 }
