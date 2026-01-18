@@ -1,16 +1,15 @@
 ﻿using System;
 
+using dnlib.DotNet;
+
 using TroiletProt_DotNet.Enums;
 
 namespace TroiletProt_DotNet.Attributes
 {
     public class ProtectionLevelAttribute : Attribute
     {
-        public ProtectionLevel Level { get; set; }
+        public ProtectionLevelAttribute(ProtectionLevel level, bool isExclusion = true) {}
 
-        public ProtectionLevelAttribute(ProtectionLevel level)
-        {
-            Level = level;
-        }
+        public static bool CheckAttribute(CustomAttribute ca) => ca.TypeFullName == typeof(ProtectionLevelAttribute).FullName;
     }
 }
