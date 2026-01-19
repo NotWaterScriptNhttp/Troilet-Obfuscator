@@ -113,7 +113,7 @@ namespace TroiletProt_DotNet.Protections
             }
             foreach (PropertyDef p in type.Properties)
             {
-                if (p.GetMethod.IsVirtual || (p.SetMethod != null && p.SetMethod.IsVirtual))
+                if ((p.GetMethod != null && p.GetMethod.IsVirtual) || (p.SetMethod != null && p.SetMethod.IsVirtual))
                     continue;
 
                 if (!CheckLevel(p, ProtectionLevel.Name, rename ? ProtectionLevel.Full : ProtectionLevel.None))
