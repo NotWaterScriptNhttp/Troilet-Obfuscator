@@ -24,6 +24,7 @@ namespace TroiletProt_DotNet
         public string[]? Events = null;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [ProtectionLevel(ProtectionLevel.Name, false)] // Only protect name
         private static bool EmptyOrNull(Array? a) => a == null || a.Length == 0;
 
         [JsonIgnore]
