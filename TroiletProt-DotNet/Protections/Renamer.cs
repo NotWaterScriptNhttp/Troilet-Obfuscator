@@ -178,9 +178,9 @@ namespace TroiletProt_DotNet.Protections
 
             if (rename)
             {
+                type.Name = type.Name.Protect(type.Namespace);
                 if (type.DeclaringType == null && !string.IsNullOrEmpty(type.Namespace))
                     type.Namespace = s.GetNamespace(type.Namespace);
-                type.Name = type.Name.Protect(type.Namespace);
                 s.Types++;
             }
             s.Checked[type] = true;
