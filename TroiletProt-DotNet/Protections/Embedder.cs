@@ -60,6 +60,20 @@ namespace TroiletProt_DotNet.Protections
             if (!mdl.HasResources) // Skip this protection, as there is nothing to protect
                 return s;
 
+            List<EmbeddedResource> embeds = new();
+            foreach (var res in mdl.Resources.OfType<EmbeddedResource>())
+            {
+                // Embedding baml files isn't supported currently
+                if (res.Name.EndsWith(".g.resources"))
+                    continue;
+
+                embeds.Add(res);
+            }
+            
+            // Compressing one file doesn't really have a benefit, so we skip it
+            if (embeds.Count <= 1)
+                return s;
+
             ICorLibTypes types = mdl.CorLibTypes;
             s.Type = Globals.CreateType<Embedder>(mdl);
 
@@ -72,8 +86,7 @@ namespace TroiletProt_DotNet.Protections
             {
                 using (var bw = new BinaryWriter(ms))
                 {
-                    EmbeddedResource[] embeds = mdl.Resources.OfType<EmbeddedResource>().ToArray();
-                    bw.Write(embeds.Length);
+                    bw.Write(embeds.Count);
                     foreach (var res in embeds)
                     {
                         bw.Write(s.GetResName(res.Name));
@@ -127,6 +140,7 @@ namespace TroiletProt_DotNet.Protections
                 decompressB.AddLocal(types.Int32); // RCount
                 decompressB.AddLocal(types.Int32); // Index
                 decompressB.AddLocal(types.Object); // DelfateStream
+                decompressB.AddLocal(types.Object); // MainfestResource
 
                 decompressB.AddInst(OpCodes.Ldc_I4, 0);
                 decompressB.AddRefLocal(OpCodes.Stloc, 2);
@@ -139,9 +153,10 @@ namespace TroiletProt_DotNet.Protections
                 decompressB.AddInst(OpCodes.Call, getAssembly);
                 decompressB.AddInst(OpCodes.Ldstr, cename);
                 decompressB.AddInst(OpCodes.Callvirt, getRStream);
-                decompressB.AddInst(OpCodes.Dup);
+                decompressB.AddRefLocal(OpCodes.Stloc, 4);
 
                 // Check if the resource was found
+                decompressB.AddRefLocal(OpCodes.Ldloc, 4);
                 decompressB.AddInst(OpCodes.Ldnull);
                 decompressB.AddInst(OpCodes.Cgt_Un);
                 decompressB.AddRefInst(OpCodes.Brtrue, "IL_DECOMPRESS");
@@ -152,7 +167,8 @@ namespace TroiletProt_DotNet.Protections
                 decompressB.AddInst(OpCodes.Throw);
 
                 // Create decompression stream
-                decompressB.AddInst("IL_DECOMPRESS", OpCodes.Ldc_I4, 0);
+                decompressB.AddRefLocal("IL_DECOMPRESS", OpCodes.Ldloc, 4);
+                decompressB.AddInst(OpCodes.Ldc_I4, 0);
                 decompressB.AddInst(OpCodes.Newobj, defCtor);
                 decompressB.AddInst(OpCodes.Dup);
                 decompressB.AddRefLocal(OpCodes.Stloc, 3);
@@ -188,16 +204,34 @@ namespace TroiletProt_DotNet.Protections
                 decompressB.AddRefLocal(OpCodes.Ldloc, 1);
                 decompressB.AddRefInst(OpCodes.Blt, "IL_RESREAD");
 
+                decompressB.AddRefLocal(OpCodes.Ldloc, 4); // ManifestStream
                 decompressB.AddRefLocal(OpCodes.Ldloc, 3); // DeflateStream
                 decompressB.AddRefLocal(OpCodes.Ldloc, 0); // BinaryReader
                 decompressB.AddInst(OpCodes.Callvirt, dispose); // BinaryReader.Dispose
                 decompressB.AddInst(OpCodes.Callvirt, dispose); // DeflateStream.Dispose
+                decompressB.AddInst(OpCodes.Callvirt, dispose); // ManifestStream.Dispose
 
                 decompressB.AddInst(OpCodes.Ret);
             }
             // GetResource
             {
+                IMethod tryGet = mdl.ImportMethod(resType, "TryGetValue");
+
+                getResB.AddLocal(new SZArraySig(types.Byte));
+
+                // Check if the resource was loaded
+                getResB.AddInst(OpCodes.Ldsfld, resFld);
+                getResB.AddRefArg(OpCodes.Ldarg, 0);
+                getResB.AddRefLocal(OpCodes.Ldloca, 0);
+                getResB.AddInst(OpCodes.Callvirt, tryGet);
+                getResB.AddRefInst(OpCodes.Brtrue, "IL_RET");
+
+                // Set default value (null)
                 getResB.AddInst(OpCodes.Ldnull);
+                getResB.AddRefLocal(OpCodes.Stloc, 0);
+
+                // Return value
+                getResB.AddRefLocal("IL_RET", OpCodes.Ldloc, 0);
                 getResB.AddInst(OpCodes.Ret);
             }
 
