@@ -121,7 +121,7 @@ namespace TroiletProt_DotNet.Protections
             FieldDef resFld = s.Type.AddField("_Resources", resSig);
 
             MethodBuilder decompressB = new MethodBuilder("Decompress", types.Void);
-            MethodBuilder getResB = new MethodBuilder("GetResource", new SZArraySig(types.Byte), new TypeSig[] { types.String, types.UInt64 });
+            MethodBuilder getResB = new MethodBuilder("GetResource", new SZArraySig(types.Byte), new TypeSig[] { types.String });
             // Decompress
             {
                 IMethod resCtor = mdl.ImportCtor(resType, new Type[0]);
