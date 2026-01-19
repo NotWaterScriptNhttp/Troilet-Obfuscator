@@ -220,6 +220,10 @@ namespace TroiletProt_DotNet.Protections
                         switch (inst.OpCode.Code)
                         {
                             case Code.Ldstr:
+                                // If string is empty skip protection
+                                if (string.IsNullOrEmpty((string)inst.Operand))
+                                    break;
+
                                 inst.Operand = s.ProtectString((string)inst.Operand);
                                 body.Instructions.Insert(++i, new Instruction(OpCodes.Call, _upStr));
 
