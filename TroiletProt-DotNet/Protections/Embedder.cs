@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Reflection;
 using System.IO.Compression;
 using System.Collections.Generic;
 
@@ -53,20 +54,25 @@ namespace TroiletProt_DotNet.Protections
         public override string Name { get; protected set; } = "Embedder";
 
         public override bool CanProtect() => PluginConfig.Instance.GetValueBool("Protections", "embed_prot", true);
-        public override ProtectionSession StartSession(ModuleDef module)
+        public override ProtectionSession StartSession(ModuleDef mdl)
         {
-            EmbedderSession s = new EmbedderSession(module);
-            if (!module.HasResources) // Skip this protection, as there is nothing to protect
+            EmbedderSession s = new EmbedderSession(mdl);
+            if (!mdl.HasResources) // Skip this protection, as there is nothing to protect
                 return s;
 
-            ICorLibTypes types = module.CorLibTypes;
-            s.Type = Globals.CreateType<Embedder>(module);
+            ICorLibTypes types = mdl.CorLibTypes;
+            s.Type = Globals.CreateType<Embedder>(mdl);
 
+            byte[] cenameBytes = new byte[Globals.Rand.Next(8, 32)];
+            Globals.Rand.NextBytes(cenameBytes);
+            string cename = cenameBytes.ToWide();
+
+            // Create compressed resource
             using (var ms = new MemoryStream())
             {
                 using (var bw = new BinaryWriter(ms))
                 {
-                    EmbeddedResource[] embeds = module.Resources.OfType<EmbeddedResource>().ToArray();
+                    EmbeddedResource[] embeds = mdl.Resources.OfType<EmbeddedResource>().ToArray();
                     bw.Write(embeds.Length);
                     foreach (var res in embeds)
                     {
@@ -79,7 +85,7 @@ namespace TroiletProt_DotNet.Protections
                         byte[] data = r.ReadBytes((int)len);
                         bw.Write(data, 0, (int)len);
 
-                        module.Resources.Remove(res);
+                        mdl.Resources.Remove(res);
                     }
                 }
 
@@ -93,18 +99,113 @@ namespace TroiletProt_DotNet.Protections
 
                     byte[] comp = o.ToArray();
                     s.PostCompSize = comp.LongLength;
-                    module.Resources.Add(new EmbeddedResource("EmbedderData", comp));
+                    mdl.Resources.Add(new EmbeddedResource(cename, comp));
                 }
             }
 
+            Type resType = typeof(Dictionary<string, byte[]>);
+            TypeSig resSig = mdl.ImportAsTypeSig(resType);
+            FieldDef resFld = s.Type.AddField("_Resources", resSig);
+
+            MethodBuilder decompressB = new MethodBuilder("Decompress", types.Void);
             MethodBuilder getResB = new MethodBuilder("GetResource", new SZArraySig(types.Byte), new TypeSig[] { types.String, types.UInt64 });
+            // Decompress
+            {
+                IMethod resCtor = mdl.ImportCtor(resType, new Type[0]);
+                IMethod getAssembly = mdl.ImportMethod<Assembly>("GetExecutingAssembly", new Type[0]);
+                IMethod getRStream = mdl.ImportMethod<Assembly>("GetManifestResourceStream", new Type[] { typeof(string) });
+                IMethod exCtor = mdl.ImportCtor<ApplicationException>(new Type[] { typeof(string) });
+                IMethod defCtor = mdl.ImportCtor<DeflateStream>(new Type[] { typeof(Stream), typeof(CompressionMode) });
+                IMethod brCtor = mdl.ImportCtor<BinaryReader>(new Type[] { typeof(Stream) });
+                IMethod brReadInt32 = mdl.ImportMethod<BinaryReader>("ReadInt32");
+                IMethod brReadString = mdl.ImportMethod<BinaryReader>("ReadString");
+                IMethod brReadBytes = mdl.ImportMethod<BinaryReader>("ReadBytes");
+                IMethod addRes = mdl.ImportMethod(resType, "set_Item");
+                IMethod dispose = mdl.ImportMethod<IDisposable>("Dispose");
+
+                decompressB.AddLocal(types.Object); // Reader
+                decompressB.AddLocal(types.Int32); // RCount
+                decompressB.AddLocal(types.Int32); // Index
+                decompressB.AddLocal(types.Object); // DelfateStream
+
+                decompressB.AddInst(OpCodes.Ldc_I4, 0);
+                decompressB.AddRefLocal(OpCodes.Stloc, 2);
+
+                // Create resource dictionary
+                decompressB.AddInst(OpCodes.Newobj, resCtor);
+                decompressB.AddInst(OpCodes.Stsfld, resFld);
+
+                // Get stream for compressed resource
+                decompressB.AddInst(OpCodes.Call, getAssembly);
+                decompressB.AddInst(OpCodes.Ldstr, cename);
+                decompressB.AddInst(OpCodes.Callvirt, getRStream);
+                decompressB.AddInst(OpCodes.Dup);
+
+                // Check if the resource was found
+                decompressB.AddInst(OpCodes.Ldnull);
+                decompressB.AddInst(OpCodes.Cgt_Un);
+                decompressB.AddRefInst(OpCodes.Brtrue, "IL_DECOMPRESS");
+
+                // Throw exception
+                decompressB.AddInst(OpCodes.Ldstr, "Failed to get compressed resource!");
+                decompressB.AddInst(OpCodes.Newobj, exCtor);
+                decompressB.AddInst(OpCodes.Throw);
+
+                // Create decompression stream
+                decompressB.AddInst("IL_DECOMPRESS", OpCodes.Ldc_I4, 0);
+                decompressB.AddInst(OpCodes.Newobj, defCtor);
+                decompressB.AddInst(OpCodes.Dup);
+                decompressB.AddRefLocal(OpCodes.Stloc, 3);
+
+                // Create BinaryReader
+                decompressB.AddInst(OpCodes.Newobj, brCtor);
+                decompressB.AddRefLocal(OpCodes.Stloc, 0);
+
+                // Read number of resources
+                decompressB.AddRefLocal(OpCodes.Ldloc, 0);
+                decompressB.AddInst(OpCodes.Callvirt, brReadInt32);
+                decompressB.AddRefLocal(OpCodes.Stloc, 1);
+                decompressB.AddRefInst(OpCodes.Br, "IL_CHECKLOOP");
+
+                // Read resource data
+                decompressB.AddInst("IL_RESREAD", OpCodes.Ldsfld, resFld); // Load resource dictionary
+                decompressB.AddRefLocal(OpCodes.Ldloc, 0);
+                decompressB.AddInst(OpCodes.Callvirt, brReadString); // Resource name
+                decompressB.AddRefLocal(OpCodes.Ldloc, 0);
+                decompressB.AddInst(OpCodes.Dup); // We will use BinaryReader twice in a row
+                decompressB.AddInst(OpCodes.Callvirt, brReadInt32); // Resource data len
+                decompressB.AddInst(OpCodes.Callvirt, brReadBytes); // Read resource data
+                decompressB.AddInst(OpCodes.Callvirt, addRes); // Adds the resource to the dictionary
+
+                // Increment index
+                decompressB.AddRefLocal(OpCodes.Ldloc, 2);
+                decompressB.AddInst(OpCodes.Ldc_I4, 1);
+                decompressB.AddInst(OpCodes.Add);
+                decompressB.AddRefLocal(OpCodes.Stloc, 2);
+
+                // Check loop
+                decompressB.AddRefLocal("IL_CHECKLOOP", OpCodes.Ldloc, 2);
+                decompressB.AddRefLocal(OpCodes.Ldloc, 1);
+                decompressB.AddRefInst(OpCodes.Blt, "IL_RESREAD");
+
+                decompressB.AddRefLocal(OpCodes.Ldloc, 3); // DeflateStream
+                decompressB.AddRefLocal(OpCodes.Ldloc, 0); // BinaryReader
+                decompressB.AddInst(OpCodes.Callvirt, dispose); // BinaryReader.Dispose
+                decompressB.AddInst(OpCodes.Callvirt, dispose); // DeflateStream.Dispose
+
+                decompressB.AddInst(OpCodes.Ret);
+            }
             // GetResource
             {
                 getResB.AddInst(OpCodes.Ldnull);
                 getResB.AddInst(OpCodes.Ret);
             }
 
+            MethodDef meth = decompressB.Get();
+            s.Type.Methods.Add(meth);
             s.Type.Methods.Add(_getRes = getResB.Get());
+
+            Globals.CCtor.AddInst(OpCodes.Call, meth);
 
             return s;
         }
