@@ -8,31 +8,32 @@ namespace TroiletCore
     {
         public const ushort SizeNum = 1000; // kB
 
-        public static Stream? GetResourceStream(string name)
+        private static Stream? _GetResStream(Assembly asm, string name)
         {
-            Assembly asm = Assembly.GetCallingAssembly();
+            string? n = asm.GetName().Name;
+            if (n == null)
+                n = "";
+            else n = n.Replace('-', '_').ToLower() + ".";
+
             foreach (var res in asm.GetManifestResourceNames())
-                if (res.EndsWith($"Resources.{name}"))
+                if (res.ToLower() == (n + name.ToLower()))
                     return asm.GetManifestResourceStream(res);
 
             return null;
         }
+
+        public static Stream? GetResourceStream(string name) => _GetResStream(Assembly.GetCallingAssembly(), name);
         public static byte[]? GetResource(string name)
         {
-            Assembly asm = Assembly.GetCallingAssembly();
-            foreach (var res in asm.GetManifestResourceNames())
-                if (res.EndsWith($"Resources.{name}"))
-                    using (MemoryStream ms = new MemoryStream())
-                    {
-                        Stream? s = asm.GetManifestResourceStream(res);
-                        if (s == null)
-                            return null;
+            Stream? s = _GetResStream(Assembly.GetCallingAssembly(), name);
+            if (s == null)
+                return null;
 
-                        s.CopyTo(ms);
-                        return ms.ToArray();
-                    }
-
-            return null;
+            using (var ms = new MemoryStream())
+            {
+                s.CopyTo(ms);
+                return ms.ToArray();
+            }
         }
 
         public static bool CheckBytes(byte[] bytes, int blen, string data)

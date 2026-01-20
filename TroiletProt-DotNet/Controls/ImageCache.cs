@@ -35,7 +35,7 @@ namespace TroiletProt_DotNet.Controls
     
         private static void LoadImage(DNImage img, string name)
         {
-            byte[]? data = Globals.ReadEmbed(name + ".png");
+            byte[]? data = Globals.ReadEmbed("Resources." + name + ".png");
             if (data == null)
                 throw new ArgumentNullException("name", "Cannot be found.");
 

@@ -72,7 +72,7 @@ namespace TroiletGUI.Pages
             }
 
         UNKNOWN_ICON:
-            if (istream == null && (istream = Utils.GetResourceStream("UnknownIcon.png")) == null)
+            if (istream == null && (istream = Utils.GetResourceStream("Resources.UnknownIcon.png")) == null)
                 return null;
 
             return new PngBitmapDecoder(istream, BitmapCreateOptions.PreservePixelFormat, BitmapCacheOption.OnLoad).Frames[0];

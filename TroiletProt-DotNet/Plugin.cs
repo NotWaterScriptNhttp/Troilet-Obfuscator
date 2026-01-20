@@ -47,7 +47,7 @@ namespace TroiletProt_DotNet
                 return null;
             }
 
-            byte[]? icon = Globals.ReadEmbed("ILIcon.png");
+            byte[]? icon = Globals.ReadEmbed("Resources.ILIcon.png");
             return icon != null ? new MemoryStream(icon) : null;
         }
         bool IObfuscatorPlugin.Obfuscate(string file, string output, string[]? deps = null)

@@ -30,7 +30,7 @@ namespace TroiletProt_Lua
             }
 
         VALID_FILE:
-            return Utils.GetResourceStream("LuaIcon.png");
+            return Utils.GetResourceStream("Resources.LuaIcon.png");
         }
 
         public bool Obfuscate(string file, string output, string[]? deps = null)
