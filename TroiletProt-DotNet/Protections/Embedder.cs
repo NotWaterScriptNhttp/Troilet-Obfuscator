@@ -142,6 +142,7 @@ namespace TroiletProt_DotNet.Protections
                 IMethod brCtor = mdl.ImportCtor<BinaryReader>(new Type[] { typeof(Stream) });
                 IMethod brReadInt32 = mdl.ImportMethod<BinaryReader>("ReadInt32");
                 IMethod brReadString = mdl.ImportMethod<BinaryReader>("ReadString");
+                IMethod tolower = mdl.ImportMethod<string>("ToLower", new Type[0]);
                 IMethod brReadBytes = mdl.ImportMethod<BinaryReader>("ReadBytes");
                 IMethod addRes = mdl.ImportMethod(resType, "set_Item");
                 IMethod dispose = mdl.ImportMethod<IDisposable>("Dispose");
@@ -197,6 +198,7 @@ namespace TroiletProt_DotNet.Protections
                 decompressB.AddInst("IL_RESREAD", OpCodes.Ldsfld, resFld); // Load resource dictionary
                 decompressB.AddRefLocal(OpCodes.Ldloc, 0);
                 decompressB.AddInst(OpCodes.Callvirt, brReadString); // Resource name
+                decompressB.AddInst(OpCodes.Callvirt, tolower);
                 decompressB.AddRefLocal(OpCodes.Ldloc, 0);
                 decompressB.AddInst(OpCodes.Dup); // We will use BinaryReader twice in a row
                 decompressB.AddInst(OpCodes.Callvirt, brReadInt32); // Resource data len
@@ -225,13 +227,33 @@ namespace TroiletProt_DotNet.Protections
             }
             // GetResource
             {
+                IMethod getAssembly = mdl.ImportMethod<Assembly>("GetExecutingAssembly", new Type[0]);
+                IMethod asmGetName = mdl.ImportMethod<Assembly>("GetName", new Type[0]);
+                IMethod getName = mdl.ImportMethod<AssemblyName>("get_Name");
+                IMethod concat = mdl.ImportMethod<string>("Concat", new Type[] { typeof(string), typeof(string), typeof(string) });
+                IMethod sreplace = mdl.ImportMethod<string>("Replace", new Type[] { typeof(char), typeof(char) });
+                IMethod tolower = mdl.ImportMethod<string>("ToLower", new Type[0]);
                 IMethod tryGet = mdl.ImportMethod(resType, "TryGetValue");
 
                 getResB.AddLocal(new SZArraySig(types.Byte));
+                getResB.AddLocal(types.String);
+
+                // Add assembly name to resource name
+                getResB.AddInst(OpCodes.Call, getAssembly);
+                getResB.AddInst(OpCodes.Callvirt, asmGetName);
+                getResB.AddInst(OpCodes.Callvirt, getName);
+                getResB.AddInst(OpCodes.Ldstr, ".");
+                getResB.AddRefArg(OpCodes.Ldarg, 0);
+                getResB.AddInst(OpCodes.Call, concat);
+                getResB.AddInst(OpCodes.Ldc_I4, (int)'-');
+                getResB.AddInst(OpCodes.Ldc_I4, (int)'_');
+                getResB.AddInst(OpCodes.Callvirt, sreplace);
+                getResB.AddInst(OpCodes.Callvirt, tolower);
+                getResB.AddRefLocal(OpCodes.Stloc, 1);
 
                 // Check if the resource was loaded
                 getResB.AddInst(OpCodes.Ldsfld, resFld);
-                getResB.AddRefArg(OpCodes.Ldarg, 0);
+                getResB.AddRefLocal(OpCodes.Ldloc, 1);
                 getResB.AddRefLocal(OpCodes.Ldloca, 0);
                 getResB.AddInst(OpCodes.Callvirt, tryGet);
                 getResB.AddRefInst(OpCodes.Brtrue, "IL_RET");
