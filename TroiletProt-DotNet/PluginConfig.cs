@@ -46,8 +46,10 @@ namespace TroiletProt_DotNet
             Instance = this;
 
             AddSection("Protections")
+                .AddToggle("rename_prot", "Renamed Types", true)
+                .AddToggle("const_prot", "Protect Constants", true)
                 .AddToggle("embed_prot", "Protect Embeds", true)
-                .AddToggle("const_prot", "Protect Constants", true);
+                .AddToggle("spooftypes_prot", "Spoof Types", true);
 
             AddSection("Misc")
                 .AddButton("show_exclusions", "Open Exclusions", () =>

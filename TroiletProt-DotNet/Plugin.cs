@@ -135,8 +135,12 @@ namespace TroiletProt_DotNet
                 },
                 { 1, new List<ProtectionBase>()
                     {
-                        new Renamer(),
-                        //TODO: Add type spoofer
+                        new TypeSpooferProtection()
+                    } 
+                },
+                { 2, new List<ProtectionBase>()
+                    {
+                        new Renamer()
                     } 
                 }
             };

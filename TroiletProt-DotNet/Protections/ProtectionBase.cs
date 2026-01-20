@@ -2,6 +2,7 @@
 using System.Runtime.CompilerServices;
 
 using dnlib.DotNet;
+using dnlib.DotNet.Emit;
 
 using TroiletProt_DotNet.Enums;
 

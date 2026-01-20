@@ -64,7 +64,7 @@ namespace TroiletProt_DotNet.Protections
 
         public override string Name { get; protected set; } = "Renamer";
 
-        public override bool CanProtect() => true;
+        public override bool CanProtect() => PluginConfig.Instance.GetValueBool("Protections", "rename_prot", true);
         public override ProtectionSession StartSession(ModuleDef module)
         {
             // Find all possible virtual/abstract/interface methods
