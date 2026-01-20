@@ -8,6 +8,7 @@ using dnlib.DotNet;
 using dnlib.DotNet.Emit;
 
 using TroiletCore;
+using TroiletProt_DotNet.Attributes;
 using TroiletProt_DotNet.Extensions;
 
 namespace TroiletProt_DotNet.Protections
@@ -17,20 +18,12 @@ namespace TroiletProt_DotNet.Protections
         public class EmbedderSession : ProtectionSession
         {
             internal TypeDef? Type = null;
-            internal Dictionary<UTF8String, UTF8String> _ResNames = new();
+            internal List<MethodDef> Readers = new();
 
             internal long PreCompSize = 0;
             internal long PostCompSize = 0;
 
             public EmbedderSession(ModuleDef module) : base(module) {}
-
-            public string GetResName(UTF8String name)
-            {
-                if (_ResNames.TryGetValue(name, out var res))
-                    return res;
-
-                return _ResNames[name] = name.Protect();
-            }
 
             public override ProtectionStatistics EndSession()
             {
@@ -75,6 +68,23 @@ namespace TroiletProt_DotNet.Protections
                 return s;
 
             ICorLibTypes types = mdl.CorLibTypes;
+            TypeSig barr = new SZArraySig(types.Byte);
+
+            foreach (var t in mdl.Types)
+            {
+                foreach (var m in t.Methods)
+                    if (m.HasCustomAttributes && m.IsStatic && m.ReturnType.IsSame(barr) && m.Parameters.Count == 1 && m.Parameters[0].Type == types.String)
+                    {
+                        foreach (var ca in m.CustomAttributes)
+                            if (EmbedReaderAttribute.CheckAttribute(ca))
+                            {
+                                s.Readers.Add(m);
+                                m.CustomAttributes.Remove(ca);
+                                break;
+                            }
+                    }
+            }
+
             s.Type = Globals.CreateType<Embedder>(mdl);
 
             byte[] cenameBytes = new byte[Globals.Rand.Next(8, 32)];
@@ -89,7 +99,7 @@ namespace TroiletProt_DotNet.Protections
                     bw.Write(embeds.Count);
                     foreach (var res in embeds)
                     {
-                        bw.Write(s.GetResName(res.Name));
+                        bw.Write(res.Name);
                         uint len = res.Length;
                         bw.Write((int)len);
                         s.PreCompSize += len;
@@ -248,7 +258,15 @@ namespace TroiletProt_DotNet.Protections
         {
             EmbedderSession s = (EmbedderSession)session;
 
-            //TODO: Add logic for finding and replacing the wrapper GetResource
+            foreach (var r in s.Readers)
+            {
+                CilBody b = r.Body;
+                b.Instructions.Clear();
+
+                b.Instructions.Add(new Instruction(OpCodes.Ldarg_0));
+                b.Instructions.Add(new Instruction(OpCodes.Call, _getRes));
+                b.Instructions.Add(new Instruction(OpCodes.Ret));
+            }
         }
     }
 }
