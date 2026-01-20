@@ -3,7 +3,6 @@ using System.IO;
 
 using dnlib.DotNet;
 
-using TroiletCore;
 using TroiletCore.Plugin;
 using TroiletProt_DotNet.Enums;
 using TroiletProt_DotNet.Controls;
