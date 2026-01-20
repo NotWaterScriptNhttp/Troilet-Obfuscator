@@ -3,6 +3,7 @@ using System.Collections.Generic;
 
 using dnlib.DotNet;
 
+using TroiletCore;
 using TroiletProt_DotNet.Enums;
 using TroiletProt_DotNet.Attributes;
 
@@ -19,6 +20,9 @@ namespace TroiletProt_DotNet
 
         public static byte[] Key = new byte[0];
         public static byte[] Salt = new byte[0];
+
+        [EmbedReader]
+        internal static byte[]? ReadEmbed(string name) => Utils.GetResource(name);
 
         public static TypeDef CreateType<T>(ModuleDef mdl)
         {

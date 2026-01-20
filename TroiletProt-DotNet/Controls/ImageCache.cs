@@ -35,11 +35,11 @@ namespace TroiletProt_DotNet.Controls
     
         private static void LoadImage(DNImage img, string name)
         {
-            Stream? s = Utils.GetResourceStream(name + ".png");
-            if (s == null)
+            byte[]? data = Globals.ReadEmbed(name + ".png");
+            if (data == null)
                 throw new ArgumentNullException("name", "Cannot be found.");
 
-            CachedImage[img] = new PngBitmapDecoder(s, BitmapCreateOptions.PreservePixelFormat, BitmapCacheOption.OnLoad).Frames[0];
+            CachedImage[img] = new PngBitmapDecoder(new MemoryStream(data), BitmapCreateOptions.PreservePixelFormat, BitmapCacheOption.OnLoad).Frames[0];
         }
         private static void LoadBundle(DNImage imgtype, string name)
         {
