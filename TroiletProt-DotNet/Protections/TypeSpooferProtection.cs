@@ -12,6 +12,12 @@ namespace TroiletProt_DotNet.Protections
     {
         public class SpooferSession : ProtectionSession
         {
+            private struct SpoofData
+            {
+                public MethodDef Ctor;
+                public IMethod BaseCtor;
+            }
+
             private Dictionary<ITypeDefOrRef, TypeDef> _SpoofedTypes = new();
             private ICorLibTypes _Types;
 
@@ -34,23 +40,45 @@ namespace TroiletProt_DotNet.Protections
                 if (type.IsEnum || type.IsValueType || tdor.IsValueType)
                     return;
 
-                List<MethodDef> overrides = new();
-                foreach (var m in type.Methods) 
+                /*List<MethodDef> overrides = new();
+                foreach (var m in type.Methods)
                     if (m.IsReuseSlot && m.IsVirtual) // Check if the method is an override
-                        overrides.Add(m);
+                        overrides.Add(m);*/
+                List<SpoofData> ctors = new();
+                foreach (var m in type.Methods)
+                    if (m.IsInstanceConstructor && !m.IsPrivate && m.HasBody)
+                    {
+                        IMethod? octor = null;
+                        for (int i = m.Body.Instructions.Count - 1; 0 < i; i--)
+                        {
+                            Instruction inst = m.Body.Instructions[i];
+                            if (inst.OpCode.Code == Code.Call && inst.Operand == tdor)
+                            {
+                                octor = (IMethod)inst.Operand;
+                                break;
+                            }
+                        }
+
+                        if (octor != null)
+                            ctors.Add(new SpoofData()
+                            {
+                                Ctor = m,
+                                BaseCtor = octor
+                            });
+                    }
 
                 
                 if (!_SpoofedTypes.TryGetValue(type.BaseType, out var spoofed))
                 {
                     spoofed = new TypeDefUser(tdor.Name + "_Spoofed", tdor);
-                    spoofed.Attributes = TypeAttributes.Public | TypeAttributes.Class | TypeAttributes.AutoLayout | TypeAttributes.AnsiClass | TypeAttributes.BeforeFieldInit;
+                    spoofed.Attributes = TypeAttributes.Public | TypeAttributes.Abstract | TypeAttributes.Class | TypeAttributes.AutoLayout | TypeAttributes.AnsiClass | TypeAttributes.BeforeFieldInit;
 
-                    var ctor = new MethodDefUser(".ctor", new MethodSig(CallingConvention.Default, 0, _Types.Void));
+                    /*var ctor = new MethodDefUser(".ctor", new MethodSig(CallingConvention.Default, 0, _Types.Void));
                     ctor.Attributes = MethodAttributes.Public | MethodAttributes.SpecialName | MethodAttributes.RTSpecialName | MethodAttributes.HideBySig;
                     (ctor.Body = new CilBody()).Instructions.Add(new Instruction(OpCodes.Ret));
-                    spoofed.Methods.Add(ctor);
+                    spoofed.Methods.Add(ctor);*/
 
-                    foreach (var m in overrides)
+                    /*foreach (var m in overrides)
                     {
                         var mc = new MethodDefUser(m.Name, m.MethodSig, m.ImplAttributes, m.Attributes);
                         var mcB = new MethodBuilder(mc);
@@ -69,6 +97,20 @@ namespace TroiletProt_DotNet.Protections
 
                         mcB.AddInst(OpCodes.Ret);
                         spoofed.Methods.Add(mcB.Get());
+                    }*/
+
+                    foreach (var data in ctors)
+                    {
+                        MethodDef octor = data.Ctor;
+                        var ctor = new MethodDefUser(".ctor", octor.MethodSig, octor.ImplAttributes, octor.Attributes);
+                        var body = ctor.Body = new CilBody();
+
+                        foreach (var p in ctor.Parameters)
+                            body.Instructions.Add(new Instruction(OpCodes.Ldarg, p));
+                        body.Instructions.Add(new Instruction(OpCodes.Call, data.BaseCtor));
+                        body.Instructions.Add(new Instruction(OpCodes.Ret));
+
+                        spoofed.Methods.Add(ctor);
                     }
 
                     _SpoofedTypes[tdor] = spoofed;
@@ -77,7 +119,7 @@ namespace TroiletProt_DotNet.Protections
 
                 // We can remove methods that aren't referenced, but are from the same basetype, as that means that its an override of a virtual function, and not an abstract one
                 // The only solution to this, is doing it blindly, as we don't want to load referenced modules, and it should be safe, as we are only keeping the methods that are getting overriden in every child class
-                IList<MethodDef> smethods = spoofed.Methods;
+                /*IList<MethodDef> smethods = spoofed.Methods;
                 foreach (var m in smethods)
                 {
                     if (m.IsInstanceConstructor || m.IsStaticConstructor)
@@ -93,6 +135,20 @@ namespace TroiletProt_DotNet.Protections
 
                     if (!found)
                         spoofed.Methods.Remove(m); // Remove the method
+                }*/
+                IList<MethodDef> sctors = spoofed.Methods;
+                foreach (var m in sctors)
+                {
+                    bool found = false;
+                    foreach (var data in ctors)
+                        if (m.MethodSig.IsSame(data.Ctor.MethodSig))
+                        {
+                            found = true;
+                            break;
+                        }
+
+                    if (!found)
+                        spoofed.Methods.Remove(m);
                 }
 
             SET_BASETYPE:
