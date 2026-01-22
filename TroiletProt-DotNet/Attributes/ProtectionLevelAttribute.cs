@@ -10,6 +10,6 @@ namespace TroiletProt_DotNet.Attributes
     {
         public ProtectionLevelAttribute(ProtectionLevel level, bool isExclusion = true) {}
 
-        public static bool CheckAttribute(CustomAttribute ca) => ca.TypeFullName == typeof(ProtectionLevelAttribute).FullName;
+        public static bool CheckAttribute(CustomAttribute ca) => ca.ConstructorArguments.Count >= 2 && ca.TypeFullName == typeof(ProtectionLevelAttribute).FullName;
     }
 }
