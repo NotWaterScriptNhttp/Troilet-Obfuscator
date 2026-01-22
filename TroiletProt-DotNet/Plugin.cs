@@ -55,7 +55,10 @@ namespace TroiletProt_DotNet
             static void CallOnType(Dictionary<ProtectionBase, ProtectionSession> sessions, TypeDef t, int depth = 0)
             {
                 if (depth >= 10)
+                {
+                    Console.WriteLine("Maximum depth for types reached!");
                     return;
+                }
 
                 foreach (var nt in t.NestedTypes)
                     CallOnType(sessions, nt, depth + 1);
