@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 
 using dnlib.DotNet;
+using dnlib.DotNet.Emit;
 
 using TroiletProt_DotNet.Extensions;
 
@@ -11,28 +12,91 @@ namespace TroiletProt_DotNet.Protections
     {
         public class SpooferSession : ProtectionSession
         {
-            private Dictionary<TypeDef, TypeDef> _SpoofedTypes = new();
+            private Dictionary<ITypeDefOrRef, TypeDef> _SpoofedTypes = new();
+            private ICorLibTypes _Types;
 
-            public SpooferSession(ModuleDef module) : base(module) {}
-
-            public TypeSig Spoof(TypeSig ts)
+            public SpooferSession(ModuleDef module) : base(module)
             {
-                return ts;
+                _Types = module.CorLibTypes;
             }
-            public ITypeDefOrRef? Spoof(ITypeDefOrRef? type)
+
+            public void SpoofBaseType(TypeDef type)
             {
-                if (type == null || type.IsTypeRef || ((TypeDef)type).IsSealed)
-                    return type;
+                ITypeDefOrRef? tdor = type.BaseType;
+                if (tdor == null) // Nothing to spoof
+                    return;
 
-                TypeDef td = (TypeDef)type;
-                if (_SpoofedTypes.TryGetValue(td, out var t))
-                    return t;
+                // Skip derivations of System.XXX types, as most of the time it breaks the assembly
+                string fullname = tdor.FullName;
+                if (fullname.IndexOf('.') == fullname.LastIndexOf('.') && fullname.StartsWith("System."))
+                    return;
 
-                var tdu = new TypeDefUser("SpoofedTypes", "Spoofed_" + td.Name, type);
-                tdu.Attributes = td.Attributes; // Remove abstract
-                _SpoofedTypes[td] = tdu;
+                if (type.IsEnum || type.IsValueType || tdor.IsValueType)
+                    return;
 
-                return tdu;
+                List<MethodDef> overrides = new();
+                foreach (var m in type.Methods) 
+                    if (m.IsReuseSlot && m.IsVirtual) // Check if the method is an override
+                        overrides.Add(m);
+
+                
+                if (!_SpoofedTypes.TryGetValue(type.BaseType, out var spoofed))
+                {
+                    spoofed = new TypeDefUser(tdor.Name + "_Spoofed", tdor);
+                    spoofed.Attributes = TypeAttributes.Public | TypeAttributes.Class | TypeAttributes.AutoLayout | TypeAttributes.AnsiClass | TypeAttributes.BeforeFieldInit;
+
+                    var ctor = new MethodDefUser(".ctor", new MethodSig(CallingConvention.Default, 0, _Types.Void));
+                    ctor.Attributes = MethodAttributes.Public | MethodAttributes.SpecialName | MethodAttributes.RTSpecialName | MethodAttributes.HideBySig;
+                    (ctor.Body = new CilBody()).Instructions.Add(new Instruction(OpCodes.Ret));
+                    spoofed.Methods.Add(ctor);
+
+                    foreach (var m in overrides)
+                    {
+                        var mc = new MethodDefUser(m.Name, m.MethodSig, m.ImplAttributes, m.Attributes);
+                        var mcB = new MethodBuilder(mc);
+
+                        if (mc.HasReturnType)
+                        {
+                            if (mc.ReturnType.IsValueType)
+                            {
+                                mcB.AddLocal(mc.ReturnType);
+                                mcB.AddRefLocal(OpCodes.Ldloca_S, 0);
+                                mcB.AddInst(OpCodes.Initobj, mc.ReturnType.ToTypeDefOrRef());
+                                mcB.AddInst(OpCodes.Ldloc_0);
+                            }
+                            else mcB.AddInst(OpCodes.Ldnull);
+                        }
+
+                        mcB.AddInst(OpCodes.Ret);
+                        spoofed.Methods.Add(mcB.Get());
+                    }
+
+                    _SpoofedTypes[tdor] = spoofed;
+                    goto SET_BASETYPE;
+                }
+
+                // We can remove methods that aren't referenced, but are from the same basetype, as that means that its an override of a virtual function, and not an abstract one
+                // The only solution to this, is doing it blindly, as we don't want to load referenced modules, and it should be safe, as we are only keeping the methods that are getting overriden in every child class
+                IList<MethodDef> smethods = spoofed.Methods;
+                foreach (var m in smethods)
+                {
+                    if (m.IsInstanceConstructor || m.IsStaticConstructor)
+                        continue;
+
+                    bool found = false;
+                    foreach (var om in overrides)
+                        if (m.Name == om.Name && m.MethodSig.IsSame(om.MethodSig))
+                        {
+                            found = true; 
+                            break;
+                        }
+
+                    if (!found)
+                        spoofed.Methods.Remove(m); // Remove the method
+                }
+
+            SET_BASETYPE:
+                type.BaseType = spoofed;
             }
 
             public override ProtectionStatistics EndSession()
@@ -57,7 +121,7 @@ namespace TroiletProt_DotNet.Protections
         {
             SpooferSession s = (SpooferSession)session;
 
-            type.BaseType = s.Spoof(type.BaseType);
+            s.SpoofBaseType(type);
         }
     }
 }
