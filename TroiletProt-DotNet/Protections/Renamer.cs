@@ -99,13 +99,17 @@ namespace TroiletProt_DotNet.Protections
             if (s.Checked.ContainsKey(type))
                 return;
 
-            ITypeDefOrRef? bt = type.BaseType;
-            while (bt != null && bt is TypeDef td)
-                bt = td.BaseType;
+            // We can rename the types that we created, as they aren't referenced in any BAML file
+            if (!type.Name.EndsWith("_Spoofed"))
+            {
+                ITypeDefOrRef? bt = type.BaseType;
+                while (bt != null && bt is TypeDef td)
+                    bt = td.BaseType;
 
-            // Skip WPF's components
-            if (bt != null && bt.DefinitionAssembly.Name == "PresentationFramework")
-                return;
+                // Skip WPF's components
+                if (bt != null && bt.DefinitionAssembly.Name == "PresentationFramework")
+                    return;
+            }
 
             //TODO: Check exclusion
             bool isAttr = type.IsPublic && type.BaseType.FullName == "System.Attribute"; // Skip types that are public and are attributes
