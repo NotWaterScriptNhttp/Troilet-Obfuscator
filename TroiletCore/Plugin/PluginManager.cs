@@ -60,7 +60,7 @@ namespace TroiletCore.Plugin
                 Assembly pl = PCtx.LoadFromAssemblyPath(f);
                 foreach (Type t in pl.ExportedTypes)
                 {
-                    if (t.BaseType != typeof(PluginBase))
+                    if (!typeof(PluginBase).IsAssignableFrom(t))
                         continue;
 
                     PluginBase? pb = (PluginBase?)Activator.CreateInstance(t);
