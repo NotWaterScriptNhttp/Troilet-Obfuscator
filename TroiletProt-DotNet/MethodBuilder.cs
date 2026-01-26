@@ -9,9 +9,10 @@ using TroiletProt_DotNet.Attributes;
 
 namespace TroiletProt_DotNet
 {
-    [ProtectionLevel(ProtectionLevel.Name)]
+    [ProtectionLevel(ProtectionLevel.None, false)]
     public class MethodBuilder
     {
+        [ProtectionLevel(ProtectionLevel.Full, false)]
         private enum RefType : byte
         {
             Instruction,
@@ -55,7 +56,7 @@ namespace TroiletProt_DotNet
         [ProtectionLevel(ProtectionLevel.Full, false)]
         private List<EHandler> _EHandlers = new List<EHandler>();
 
-        [ProtectionLevel(ProtectionLevel.Full, false)]
+        [ProtectionLevel(ProtectionLevel.Name, false)]
         private Instruction? ResolveInst(string? name, bool @throw = true)
         {
             if (name != null && _NamedInstrs.TryGetValue(name, out Instruction? i))
@@ -65,7 +66,7 @@ namespace TroiletProt_DotNet
                 throw new IndexOutOfRangeException("No named instruction!");
             return null;
         }
-        [ProtectionLevel(ProtectionLevel.Full, false)]
+        [ProtectionLevel(ProtectionLevel.Name, false)]
         private T CheckNull<T>(T? obj)
         {
             if (obj == null)

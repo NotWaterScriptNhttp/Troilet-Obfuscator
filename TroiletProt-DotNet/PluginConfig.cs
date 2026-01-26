@@ -32,13 +32,12 @@ namespace TroiletProt_DotNet
     }
 
     [JsonObject(MemberSerialization = MemberSerialization.OptIn)]
-    [ProtectionLevel(ProtectionLevel.Name)]
     public class PluginConfig : PluginConfigBase
     {
-        [ProtectionLevel(ProtectionLevel.Full, false)]
         public static PluginConfig? Instance { get; private set; } = null;
 
         [JsonProperty("Exclusions")]
+        [ProtectionLevel(ProtectionLevel.Name)]
         public List<Exclusion> Exclusions = new List<Exclusion>();
 
         public PluginConfig()

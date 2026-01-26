@@ -114,11 +114,15 @@ namespace TroiletProt_DotNet.Protections
             //TODO: Check exclusion
             bool isAttr = type.IsPublic && type.BaseType.FullName == "System.Attribute"; // Skip types that are public and are attributes
             bool rename = CheckLevel(type, ProtectionLevel.Name, isAttr ? ProtectionLevel.None : ProtectionLevel.Full);
+            bool skipClassRename = false;
 
             foreach (FieldDef f in type.Fields)
             {
                 if (!CheckLevel(f, ProtectionLevel.Name, rename ? ProtectionLevel.Full : ProtectionLevel.None))
+                {
+                    skipClassRename = true;
                     continue;
+                }
 
                 f.Name = f.Name.Protect(type.Name);
                 s.Fields++;
@@ -129,7 +133,10 @@ namespace TroiletProt_DotNet.Protections
                     continue;
 
                 if (!CheckLevel(p, ProtectionLevel.Name, rename ? ProtectionLevel.Full : ProtectionLevel.None))
+                {
+                    skipClassRename = true;
                     continue;
+                }
 
                 p.Name = p.Name.Protect(type.Name);
                 s.Properties++;
@@ -137,7 +144,10 @@ namespace TroiletProt_DotNet.Protections
             foreach (EventDef e in type.Events)
             {
                 if (!CheckLevel(e, ProtectionLevel.Name, rename ? ProtectionLevel.Full : ProtectionLevel.None))
+                {
+                    skipClassRename = true;
                     continue;
+                }
 
                 e.Name = e.Name.Protect(type.Name);
                 s.Events++;
@@ -176,19 +186,22 @@ namespace TroiletProt_DotNet.Protections
                         continue;
                 }
                 else if (!CheckLevel(m, ProtectionLevel.Name, ProtectionLevel.Full))
+                {
+                    skipClassRename = true;
                     continue;
-
-                foreach (Parameter p in m.Parameters)
-                    p.Name = null;
+                }
 
                 UTF8String oname = m.Name;
+                foreach (Parameter p in m.Parameters)
+                    p.Name = p.Name != null ? p.Name.Protect(oname) : null;
+
                 if (!mnames.TryGetValue(oname, out string? name))
                     name = mnames[oname] = oname.Protect(type.Name);
 
                 m.Name = name;
             }
 
-            if (rename)
+            if (rename && !skipClassRename)
             {
                 type.Name = type.Name.Protect(type.Namespace);
                 if (type.DeclaringType == null && !string.IsNullOrEmpty(type.Namespace))

@@ -62,16 +62,17 @@ namespace TroiletProt_DotNet.Protections
             s.Type = Globals.CreateType<ConstantProtection>(module);
 
             Type cacheType = typeof(Dictionary<object, object>);
-            TypeSig cacheSig = module.ImportAsTypeSig(cacheType);
+            var cacheRef = module.ImportAsSig(cacheType, types.Object, types.Object);
+
             FieldDef lockFld = s.Type.AddField("_lock", types.Object);
-            FieldDef cacheFld = s.Type.AddField("_cache", cacheSig);
+            FieldDef cacheFld = s.Type.AddField("_cache", cacheRef);
 
             MethodBuilder cctorB = new MethodBuilder(".cctor", types.Void, attrs: MethodAttributes.SpecialName | MethodAttributes.RTSpecialName | MethodAttributes.HideBySig);
             MethodBuilder unprotectStrB = new MethodBuilder("UnprotectString", types.String, new TypeSig[] { types.String });
             // .cctor
             {
-                IMethod objCtor = module.ImportCtor<object>(new Type[0]);
-                IMethod cacheCtor = module.ImportCtor(cacheType, new Type[0]);
+                IMethod? objCtor = module.ImportMethod<object>(".ctor", new Type[0]);
+                IMethod? cacheCtor = module.ImportMethod(cacheType, ".ctor", new Type[0]);
 
                 cctorB.AddInst(OpCodes.Newobj, objCtor);
                 cctorB.AddInst(OpCodes.Stsfld, lockFld);
@@ -81,16 +82,16 @@ namespace TroiletProt_DotNet.Protections
             }
             // UnprotectString
             {
-                IMethod monEnter = module.ImportMethod(typeof(Monitor), "Enter", new Type[] { typeof(object), typeof(bool).MakeByRefType() });
-                IMethod monExit = module.ImportMethod(typeof(Monitor), "Exit", new Type[] { typeof(object) });
+                IMethod? monEnter = module.ImportMethod(typeof(Monitor), "Enter", new Type[] { typeof(object), typeof(bool).MakeByRefType() });
+                IMethod? monExit = module.ImportMethod(typeof(Monitor), "Exit", new Type[] { typeof(object) });
 
-                IMethod cacheTryGet = module.ImportMethod(cacheType, "TryGetValue");
-                IMethod cacheSet = module.ImportMethod(cacheType, "set_Item");
+                IMethod? cacheTryGet = module.ImportMethod(cacheType, "TryGetValue");
+                IMethod? cacheSet = module.ImportMethod(cacheType, "set_Item");
 
-                IMethod getChars = module.ImportMethod<string>("get_Chars");
-                IMethod charToString = module.ImportMethod<char>("ToString", new Type[0]);
-                IMethod concat = module.ImportMethod<string>("Concat", new Type[] { typeof(string), typeof(string) });
-                IMethod getLength = module.ImportMethod<string>("get_Length");
+                IMethod? getChars = module.ImportMethod<string>("get_Chars");
+                IMethod? charToString = module.ImportMethod<char>("ToString", new Type[0]);
+                IMethod? concat = module.ImportMethod<string>("Concat", new Type[] { typeof(string), typeof(string) });
+                IMethod? getLength = module.ImportMethod<string>("get_Length");
 
                 unprotectStrB.AddLocal(types.String); // Result
                 unprotectStrB.AddLocal(types.Int32); // Index

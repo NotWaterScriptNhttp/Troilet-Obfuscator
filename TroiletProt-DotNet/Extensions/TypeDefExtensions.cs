@@ -4,7 +4,7 @@ using dnlib.DotNet;
 
 namespace TroiletProt_DotNet.Extensions
 {
-    public static class TypeDefExtension
+    internal static class TypeDefExtensions
     {
         public static FieldDef AddField(this TypeDef self, string name, TypeSig type, FieldAttributes attrs = FieldAttributes.Private | FieldAttributes.Static)
         {

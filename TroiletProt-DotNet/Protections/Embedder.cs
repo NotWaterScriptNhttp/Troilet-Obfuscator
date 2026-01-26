@@ -127,25 +127,25 @@ namespace TroiletProt_DotNet.Protections
             }
 
             Type resType = typeof(Dictionary<string, byte[]>);
-            TypeSig resSig = mdl.ImportAsTypeSig(resType);
+            var resSig = mdl.ImportAsSig(resType, types.String, new SZArraySig(types.Byte));
             FieldDef resFld = s.Type.AddField("_Resources", resSig);
 
             MethodBuilder decompressB = new MethodBuilder("Decompress", types.Void);
             MethodBuilder getResB = new MethodBuilder("GetResource", new SZArraySig(types.Byte), new TypeSig[] { types.String });
             // Decompress
             {
-                IMethod resCtor = mdl.ImportCtor(resType, new Type[0]);
-                IMethod getAssembly = mdl.ImportMethod<Assembly>("GetExecutingAssembly", new Type[0]);
-                IMethod getRStream = mdl.ImportMethod<Assembly>("GetManifestResourceStream", new Type[] { typeof(string) });
-                IMethod exCtor = mdl.ImportCtor<ApplicationException>(new Type[] { typeof(string) });
-                IMethod defCtor = mdl.ImportCtor<DeflateStream>(new Type[] { typeof(Stream), typeof(CompressionMode) });
-                IMethod brCtor = mdl.ImportCtor<BinaryReader>(new Type[] { typeof(Stream) });
-                IMethod brReadInt32 = mdl.ImportMethod<BinaryReader>("ReadInt32");
-                IMethod brReadString = mdl.ImportMethod<BinaryReader>("ReadString");
-                IMethod tolower = mdl.ImportMethod<string>("ToLower", new Type[0]);
-                IMethod brReadBytes = mdl.ImportMethod<BinaryReader>("ReadBytes");
-                IMethod addRes = mdl.ImportMethod(resType, "set_Item");
-                IMethod dispose = mdl.ImportMethod<IDisposable>("Dispose");
+                IMethod? resCtor = mdl.ImportMethod(resType, ".ctor", new Type[0]);
+                IMethod? getAssembly = mdl.ImportMethod<Assembly>("GetExecutingAssembly", new Type[0]);
+                IMethod? getRStream = mdl.ImportMethod<Assembly>("GetManifestResourceStream", new Type[] { typeof(string) });
+                IMethod? exCtor = mdl.ImportMethod<ApplicationException>(".ctor", new Type[] { typeof(string) });
+                IMethod? defCtor = mdl.ImportMethod<DeflateStream>(".ctor", new Type[] { typeof(Stream), typeof(CompressionMode) });
+                IMethod? brCtor = mdl.ImportMethod<BinaryReader>(".ctor", new Type[] { typeof(Stream) });
+                IMethod? brReadInt32 = mdl.ImportMethod<BinaryReader>("ReadInt32");
+                IMethod? brReadString = mdl.ImportMethod<BinaryReader>("ReadString");
+                IMethod? tolower = mdl.ImportMethod<string>("ToLower", new Type[0]);
+                IMethod? brReadBytes = mdl.ImportMethod<BinaryReader>("ReadBytes");
+                IMethod? addRes = mdl.ImportMethod(resType, "set_Item");
+                IMethod? dispose = mdl.ImportMethod<IDisposable>("Dispose");
 
                 decompressB.AddLocal(types.Object); // Reader
                 decompressB.AddLocal(types.Int32); // RCount
@@ -227,13 +227,13 @@ namespace TroiletProt_DotNet.Protections
             }
             // GetResource
             {
-                IMethod getAssembly = mdl.ImportMethod<Assembly>("GetExecutingAssembly", new Type[0]);
-                IMethod asmGetName = mdl.ImportMethod<Assembly>("GetName", new Type[0]);
-                IMethod getName = mdl.ImportMethod<AssemblyName>("get_Name");
-                IMethod concat = mdl.ImportMethod<string>("Concat", new Type[] { typeof(string), typeof(string), typeof(string) });
-                IMethod sreplace = mdl.ImportMethod<string>("Replace", new Type[] { typeof(char), typeof(char) });
-                IMethod tolower = mdl.ImportMethod<string>("ToLower", new Type[0]);
-                IMethod tryGet = mdl.ImportMethod(resType, "TryGetValue");
+                IMethod? getAssembly = mdl.ImportMethod<Assembly>("GetExecutingAssembly", new Type[0]);
+                IMethod? asmGetName = mdl.ImportMethod<Assembly>("GetName", new Type[0]);
+                IMethod? getName = mdl.ImportMethod<AssemblyName>("get_Name");
+                IMethod? concat = mdl.ImportMethod<string>("Concat", new Type[] { typeof(string), typeof(string), typeof(string) });
+                IMethod? sreplace = mdl.ImportMethod<string>("Replace", new Type[] { typeof(char), typeof(char) });
+                IMethod? tolower = mdl.ImportMethod<string>("ToLower", new Type[0]);
+                IMethod? tryGet = mdl.ImportMethod(resType, "TryGetValue");
 
                 getResB.AddLocal(new SZArraySig(types.Byte));
                 getResB.AddLocal(types.String);
@@ -284,6 +284,8 @@ namespace TroiletProt_DotNet.Protections
             {
                 CilBody b = r.Body;
                 b.Instructions.Clear();
+                b.Variables.Clear();
+                b.ExceptionHandlers.Clear();
 
                 b.Instructions.Add(new Instruction(OpCodes.Ldarg_0));
                 b.Instructions.Add(new Instruction(OpCodes.Call, _getRes));
