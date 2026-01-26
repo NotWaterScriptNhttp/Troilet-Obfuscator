@@ -12,31 +12,11 @@ namespace TroiletProt_DotNet.Extensions
     [ProtectionLevel(ProtectionLevel.None, false)]
     public static class ModuleExtension
     {
-        private static TypeDef ResolveType(Type t)
+        public static IMethod? ImportMethod(this ModuleDef md, TypeSpec ts, string name, Type[]? types = null)
         {
-            var res = RefResolver.ResolveTypeNull(t.Namespace ?? "", t.Name);
-            if (res == null)
-                throw new Exception("Failed to find type");
-
-            return res;
-        }
-        private static TypeDef ResolveType<T>() => ResolveType(typeof(T));
-
-        public static TypeSig ImportAsSig(this ModuleDef self, Type t) => self.Import(ResolveType(t)).ToTypeSig();
-        public static TypeSig ImportAsSig<T>(this ModuleDef self) => self.ImportAsSig(typeof(T));
-
-        public static TypeSig ImportAsSig(this ModuleDef self, Type t, params TypeSig[] ts) => self.Import(ResolveType(t)).ToGenSig(ts);
-        public static TypeSig ImportAsSig<T>(this ModuleDef self, params TypeSig[] ts) => self.ImportAsSig(typeof(T), ts);
-
-        public static TypeRef Import(this ModuleDef self, Type t) => self.Import(ResolveType(t));
-        public static TypeRef Import<T>(this ModuleDef self) => self.Import(ResolveType<T>());
-
-        public static IMethod? ImportMethod(this ModuleDef self, Type type, string name, Type[]? types = null)
-        {
-            var t = ResolveType(type);
-
             var methods = new List<MethodDef>();
-            foreach (var m in t.Methods)
+            var td = ts.ResolveTypeDef();
+            foreach (var m in td.Methods)
                 if (m.Name == name && (types == null || types.Length == m.MethodSig.Params.Count))
                 {
                     if (types != null)
@@ -64,21 +44,20 @@ namespace TroiletProt_DotNet.Extensions
                 return null;
 
             var meth = methods[0];
-            return self.Import(new MemberRefUser(meth.Module, name, meth.MethodSig, self.Import(t)));
+            return md.Import(new MemberRefUser(md, name, meth.MethodSig, ts));
         }
-        public static IMethod? ImportMethod<T>(this ModuleDef self, string name, Type[]? types = null) => self.ImportMethod(typeof(T), name, types);
-
-        public static MemberRef? ImportField(this ModuleDef self, Type type, string name)
+        public static MemberRef? ImportField(this ModuleDef md, TypeSpec ts, string name)
         {
-            var t = ResolveType(type);
-
-            foreach (var f in t.Fields)
+            var td = ts.ResolveTypeDef();
+            foreach (var f in td.Fields)
                 if (f.Name == name)
-                    return self.Import(new MemberRefUser(f.Module, name, f.FieldSig));
+                    return md.Import(new MemberRefUser(md, name, f.FieldSig, td));
 
             return null;
         }
-        public static MemberRef? ImportField<T>(this ModuleDef self, string name) => self.ImportField(typeof(T), name);
+
+        public static IMethod? ImportMethod(this ModuleDef md, Type type, string name, Type[]? types = null) => md.ImportMethod(RefResolver.GetType(type), name, types);
+        public static IMethod? ImportMethod<T>(this ModuleDef md, string name, Type[]? types = null) => md.ImportMethod(typeof(T), name, types);
 
         /*
         public static TypeDef? ExclusionToType(this ModuleDef mdl, Exclusion ex)

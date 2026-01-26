@@ -62,10 +62,10 @@ namespace TroiletProt_DotNet.Protections
             s.Type = Globals.CreateType<ConstantProtection>(module);
 
             Type cacheType = typeof(Dictionary<object, object>);
-            var cacheRef = module.ImportAsSig(cacheType, types.Object, types.Object);
+            var cacheRef = RefResolver.GetType(cacheType, types.Object, types.Object);
 
             FieldDef lockFld = s.Type.AddField("_lock", types.Object);
-            FieldDef cacheFld = s.Type.AddField("_cache", cacheRef);
+            FieldDef cacheFld = s.Type.AddField("_cache", cacheRef.ToTypeSig());
 
             MethodBuilder cctorB = new MethodBuilder(".cctor", types.Void, attrs: MethodAttributes.SpecialName | MethodAttributes.RTSpecialName | MethodAttributes.HideBySig);
             MethodBuilder unprotectStrB = new MethodBuilder("UnprotectString", types.String, new TypeSig[] { types.String });

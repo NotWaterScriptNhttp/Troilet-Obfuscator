@@ -6,6 +6,7 @@ using dnlib.DotNet;
 
 using TroiletProt_DotNet.Enums;
 using TroiletProt_DotNet.Attributes;
+using TroiletProt_DotNet.Extensions;
 
 namespace TroiletProt_DotNet
 {
@@ -14,6 +15,7 @@ namespace TroiletProt_DotNet
     {
         private static Dictionary<string, List<TypeDef>> _namespaces = new();
         private static Dictionary<Type, TypeDef?> _cache = new();
+        private static Dictionary<TypeRef, TypeDef> _refCache = new();
 
         public static void LoadAssemblies(string dir)
         {
@@ -48,12 +50,10 @@ namespace TroiletProt_DotNet
 
         public static TypeDef? ResolveTypeNull(string ns, string name)
         {
-            ns = ns.ToLower();
-            name = name.ToLower();
-
-            if (!_namespaces.TryGetValue(ns, out var types))
+            if (!_namespaces.TryGetValue(ns.ToLower(), out var types))
                 return null;
 
+            name = name.ToLower();
             foreach (var t in types)
                 if (t.Name.ToLower() == name)
                     return t;
@@ -69,6 +69,40 @@ namespace TroiletProt_DotNet
             return _cache[t] = ResolveTypeNull(t.Namespace ?? "", t.Name);
         }
 
-        public static void Clear() => _namespaces.Clear();
+        public static TypeDef ResolveType(Type t)
+        {
+            var res = ResolveTypeNull(t.Namespace ?? "", t.Name);
+            if (res == null)
+                throw new Exception("Failed to find type");
+
+            return res;
+        }
+        public static TypeDef ResolveType<T>() => ResolveType(typeof(T));
+
+        public static TypeSpec GetType(Type t) => new TypeSpecUser(ResolveType(t).ToTypeSig());
+        public static TypeSpec GetType<T>() => GetType(typeof(T));
+
+        public static TypeSpec GetType(Type t, params TypeSig[] ts) => new TypeSpecUser(ResolveType(t).ToGenSig(ts));
+        public static TypeSpec GetType<T>(params TypeSig[] ts) => GetType(typeof(T), ts);
+
+        public static TypeDef Resolve(TypeRef tr)
+        {
+            if (_refCache.TryGetValue(tr, out var t))
+                return t;
+
+            if (_namespaces.TryGetValue(tr.Namespace.ToLower(), out var types))
+                foreach (var type in types)
+                    if (type.Name == tr.Name)
+                        return type;
+
+            throw new Exception("TypeRef isn't loaded inside RefResolver!");
+        }
+
+        public static void Clear()
+        {
+            _refCache.Clear();
+            _cache.Clear();
+            _namespaces.Clear();
+        }
     }
 }
