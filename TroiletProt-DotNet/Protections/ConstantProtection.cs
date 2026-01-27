@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using dnlib.DotNet;
 using dnlib.DotNet.Emit;
 
+using TroiletProt_DotNet.Enums;
 using TroiletProt_DotNet.Extensions;
 
 namespace TroiletProt_DotNet.Protections
@@ -207,8 +208,9 @@ namespace TroiletProt_DotNet.Protections
         {
             ConstantSession s = (ConstantSession)session;
 
+            bool protect = CheckLevel(type, ProtectionLevel.Constants);
             foreach (MethodDef m in type.Methods)
-                if (m.HasBody)
+                if (m.HasBody && CheckLevel(m, ProtectionLevel.Constants, protect ? ProtectionLevel.Full : ProtectionLevel.None))
                 {
                     CilBody body = m.Body;
                     body.SimplifyMacros(m.Parameters);
