@@ -126,9 +126,8 @@ namespace TroiletProt_DotNet.Protections
                 }
             }
 
-            Type resType = typeof(Dictionary<string, byte[]>);
-            var resSig = RefResolver.GetType(resType, types.String, types.Object);
-            FieldDef resFld = s.Type.AddField("_Resources", resSig.TypeSig);
+            var resType = mdl.ImportType<Dictionary<string, byte[]>>(types.String, new SZArraySig(types.Byte));
+            FieldDef resFld = s.Type.AddField("_Resources", resType.TypeSig);
 
             MethodBuilder decompressB = new MethodBuilder("Decompress", types.Void);
             MethodBuilder getResB = new MethodBuilder("GetResource", new SZArraySig(types.Byte), new TypeSig[] { types.String });

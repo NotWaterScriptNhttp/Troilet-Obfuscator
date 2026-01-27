@@ -4,9 +4,9 @@ using dnlib.DotNet;
 
 namespace TroiletProt_DotNet.Extensions
 {
-    internal static class TypeDefExtensions
+    internal static class TypeDefOrRefExtensions
     {
-        public static GenericInstSig ToGenSig(this TypeDef self, params TypeSig[] sigs) => new GenericInstSig((ClassOrValueTypeSig)self.ToTypeSig(), sigs);
+        public static GenericInstSig ToGenSig(this ITypeDefOrRef self, params TypeSig[] sigs) => new GenericInstSig((ClassOrValueTypeSig)self.ToTypeSig(), sigs);
 
         public static TypeDef ResolveTypeDef(this TypeSpec ts)
         {

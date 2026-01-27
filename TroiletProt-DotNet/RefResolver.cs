@@ -79,12 +79,6 @@ namespace TroiletProt_DotNet
         }
         public static TypeDef ResolveType<T>() => ResolveType(typeof(T));
 
-        public static TypeSpec GetType(Type t) => new TypeSpecUser(ResolveType(t).ToTypeSig());
-        public static TypeSpec GetType<T>() => GetType(typeof(T));
-
-        public static TypeSpec GetType(Type t, params TypeSig[] ts) => new TypeSpecUser(ResolveType(t).ToGenSig(ts));
-        public static TypeSpec GetType<T>(params TypeSig[] ts) => GetType(typeof(T), ts);
-
         public static TypeDef Resolve(TypeRef tr)
         {
             if (_refCache.TryGetValue(tr, out var t))
@@ -100,6 +94,7 @@ namespace TroiletProt_DotNet
 
         public static void Clear()
         {
+            ModuleExtensions.ClearCache();
             _refCache.Clear();
             _cache.Clear();
             _namespaces.Clear();

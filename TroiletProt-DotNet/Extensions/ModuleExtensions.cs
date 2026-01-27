@@ -10,12 +10,44 @@ using TroiletProt_DotNet.Attributes;
 namespace TroiletProt_DotNet.Extensions
 {
     [ProtectionLevel(ProtectionLevel.None, false)]
-    public static class ModuleExtension
+    public static class ModuleExtensions
     {
-        public static IMethod? ImportMethod(this ModuleDef md, TypeSpec ts, string name, Type[]? types = null)
+        /*
+        public static MemberRef? ImportField(this ModuleDef md, TypeSpec ts, string name)
+        {
+            var td = ts.ResolveTypeDef();
+            foreach (var f in td.Fields)
+                if (f.Name == name)
+                    return md.Import(new MemberRefUser(md, name, f.FieldSig, td));
+
+            return null;
+        }*/
+
+        private static Dictionary<Type, TypeSpec> _cache = new();
+
+        public static void ClearCache() => _cache.Clear();
+
+        public static TypeSpec ImportType(this ModuleDef md, Type type)
+        {
+            if (_cache.TryGetValue(type, out var ts))
+                return ts;
+
+            var t = RefResolver.ResolveType(type);
+            return _cache[type] = new TypeSpecUser(md.Import(new TypeRefUser(md, t.Namespace, t.Name, t.Module)).ToTypeSig());
+        }
+        public static TypeSpec ImportType(this ModuleDef md, Type type, params TypeSig[] ts)
+        {
+            var t = RefResolver.ResolveType(type);
+            return new TypeSpecUser(md.Import(new TypeRefUser(md, t.Namespace, t.Name, t.Module)).ToGenSig(ts));
+        }
+
+        public static TypeSpec ImportType<T>(this ModuleDef md) => md.ImportType(typeof(T));
+        public static TypeSpec ImportType<T>(this ModuleDef md, params TypeSig[] ts) => md.ImportType(typeof(T), ts);
+
+        public static IMethod? ImportMethod(this ModuleDef md, TypeSpec type, string name, Type[]? types = null)
         {
             var methods = new List<MethodDef>();
-            var td = ts.ResolveTypeDef();
+            var td = type.ResolveTypeDef();
             foreach (var m in td.Methods)
                 if (m.Name == name && (types == null || types.Length == m.MethodSig.Params.Count))
                 {
@@ -44,20 +76,10 @@ namespace TroiletProt_DotNet.Extensions
                 return null;
 
             var meth = methods[0];
-            return md.Import(new MemberRefUser(md, name, meth.MethodSig, ts));
+            return md.Import(new MemberRefUser(md, name, meth.MethodSig, type));
         }
-        public static MemberRef? ImportField(this ModuleDef md, TypeSpec ts, string name)
-        {
-            var td = ts.ResolveTypeDef();
-            foreach (var f in td.Fields)
-                if (f.Name == name)
-                    return md.Import(new MemberRefUser(md, name, f.FieldSig, td));
-
-            return null;
-        }
-
-        public static IMethod? ImportMethod(this ModuleDef md, Type type, string name, Type[]? types = null) => md.ImportMethod(RefResolver.GetType(type), name, types);
-        public static IMethod? ImportMethod<T>(this ModuleDef md, string name, Type[]? types = null) => md.ImportMethod(typeof(T), name, types);
+        public static IMethod? ImportMethod(this ModuleDef md, Type type, string name, Type[]? types = null) => md.ImportMethod(md.ImportType(type), name, types);
+        public static IMethod? ImportMethod<T>(this ModuleDef md, string name, Type[]? types = null) => md.ImportMethod(md.ImportType<T>(), name, types);
 
         /*
         public static TypeDef? ExclusionToType(this ModuleDef mdl, Exclusion ex)
