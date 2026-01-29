@@ -34,10 +34,12 @@ namespace TroiletProt_DotNet
 
         public static ProtectionLevel GetLevel(IHasCustomAttribute? attr, ProtectionLevel defValue = ProtectionLevel.Full)
         {
-            if (attr == null || !attr.HasCustomAttributes)
+            if (attr == null)
                 return defValue;
             if (_LevelCache.TryGetValue(attr, out ProtectionLevel pl))
                 return pl;
+            if (!attr.HasCustomAttributes)
+                return defValue;
 
             foreach (var a in attr.CustomAttributes)
             {
