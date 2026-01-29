@@ -71,16 +71,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\TroiletCore\TroiletCore.csproj">
-      <Private>False</Private>
-    </ProjectReference>
+    <PackageReference Include="dnlib" Version="4.5.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="dnlib">
-      <HintPath>..\Dependencies\dnlib.dll</HintPath>
+    <ProjectReference Include="..\TroiletCore\TroiletCore.csproj">
       <Private>False</Private>
-    </Reference>
+    </ProjectReference>
   </ItemGroup>
 
 </Project>
